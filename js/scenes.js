@@ -69,11 +69,12 @@
     };
     
     var NextPiecesDisplay = Class.create(Group, {
-        initialize: function (tileimages) {
+        initialize: function (tileimages, clickSound) {
             var i, temp;
             
             Group.call(this);
             
+            this.clickSound = clickSound;
             this.tileActive = false;
             this.newType = 0;
             
@@ -122,6 +123,7 @@
         this.tiles[num].active = true;
         this.tileActive = true;
         this.newType = this.tiles[num].type;
+        this.clickSound.play();
         console.info("active tile " + num);
     };
     
@@ -187,22 +189,23 @@
     };
     
     var Board = Class.create(Group, {
-        initialize: function (tileimages, options) {
+        initialize: function (tileimages, options, sounds) {
             var i, j, temp;
             
             Group.call(this);
             
+            this.sounds = sounds;
             this.rows = options.rows;
             this.cols = options.cols;
             console.info("rows " + this.rows + " cols " + this.cols);
             
             this.tiles = [];
-            for (i = 0; i < this.cols; i++) {
-                for (j = 0; j < this.rows; j++) {
+            for (i = 0; i < this.rows; i++) {
+                for (j = 0; j < this.cols; j++) {
                     temp = new Tile(tileimages, Constants.tilesize);
-                    temp.x = Constants.boardx + (i * Constants.tilesize) - ((this.cols - 1) - (2 * i));
-                    temp.y = Constants.boardy + (j * Constants.tilesize) - ((this.rows - 1) - (2 * j));
-                    this.tiles[this.tiles.length] = temp;
+                    temp.x = Constants.boardx + (j * Constants.tilesize) - ((this.cols - 1) - (2 * j));
+                    temp.y = Constants.boardy + (i * Constants.tilesize) - ((this.rows - 1) - (2 * i));
+                    this.tiles.push(temp);
                 }
             }
         }
@@ -217,6 +220,7 @@
     
     Board.prototype.placeTile = function (i, newType) {
         this.tiles[i].change(newType);
+        this.sounds.shoonk.play();
     };
     
     /**
@@ -229,10 +233,10 @@
             
             this.backgroundColor = Constants.gamebgc;
             this.isTouched = false;
-            this.board = new Board(images.tiles, options.boardsize);
+            this.board = new Board(images.tiles, options.boardsize, sounds);
             this.scoreboard = new Scoreboard();
             this.targetDisplay = new TargetDisplay();
-            this.nextPieces = new NextPiecesDisplay(images.tiles);
+            this.nextPieces = new NextPiecesDisplay(images.tiles, sounds.click);
             this.nextPieces.generateTiles();
             
             this.board.addGraphicsToScene(this);
@@ -258,7 +262,7 @@
             var i;
             if (this.nextPieces.tileActive) {
                 for (i = 0; i < this.board.tiles.length; i++) {
-                    if ((this.clickpoint.intersect(this.board.tiles[i]))) {
+                    if ((this.clickpoint.intersect(this.board.tiles[i])) && (this.board.tiles[i].type === 0)) {
                         this.board.placeTile(i, this.nextPieces.newType);
                         this.nextPieces.generateTiles();
                         break;
