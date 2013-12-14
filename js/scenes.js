@@ -76,17 +76,62 @@
         initialize: function () {
             Group.call(this);
             
-            console.error("init scoreboard");
+            this.score = 0;
+            
+            this.scoreDisplay = new Label("0");
+            this.scoreDisplay.height = 90;
+            this.scoreDisplay.width = 180;
+            this.scoreDisplay.font = "80px arial,sans-serif";
+            this.scoreDisplay.textAlign = "center";
+            this.scoreDisplay.color = "white";
+            this.scoreDisplay.backgroundColor = "#333333";
+            this.scoreDisplay.x = 0;
+            this.scoreDisplay.y = Constants.stageHeight - this.scoreDisplay.height;
+            
+            this.title = new Label("SCORE");
+            this.title.height = 20;
+            this.title.x = 2;
+            this.title.y = Constants.stageHeight - this.scoreDisplay.height - this.title.height;
+            this.title.color = "#333333";
+            this.title.font = "20px arial,sans-serif";
+        },
+        
+        onenterframe: function () {
+            this.text = this.score;
         }
     });
+    
+    Scoreboard.prototype.addGraphicsToScene = function (scene) {
+        scene.addChild(this.scoreDisplay);
+        scene.addChild(this.title);
+    };
     
     var TargetDisplay = Class.create(Group, {
         initialize: function () {
             Group.call(this);
             
-            console.error("init target shape display");
+            this.bg = new Label();
+            this.bg.height = 90;
+            this.bg.width = 180;
+            this.bg.x = Constants.stageWidth - this.bg.width;
+            this.bg.y = Constants.stageHeight - this.bg.height;
+            this.bg.backgroundColor = "#333333";
+            
+            this.title = new Label("NEXT SHAPE");
+            this.title.height = 20;
+            this.title.width = 180;
+            this.title.x = Constants.stageWidth - this.title.width - 2;
+            this.title.y = Constants.stageHeight - this.bg.height - this.title.height;
+            this.title.color = "#333333";
+            this.title.font = "20px arial,sans-serif";
+            this.title.textAlign = "right";
         }
     });
+    
+    TargetDisplay.prototype.addGraphicsToScene = function (scene) {
+        scene.addChild(this.bg);
+        scene.addChild(this.title);
+    };
     
     var Board = Class.create(Group, {
         initialize: function (tileimages, options) {
@@ -128,11 +173,13 @@
             this.backgroundColor = Constants.gamebgc;
             this.board = new Board(images.tiles, options.boardsize);
             this.scoreboard = new Scoreboard();
-            this.targetdisplay = new TargetDisplay();
-            this.nextpieces = new NextPiecesDisplay(images.tiles);
+            this.targetDisplay = new TargetDisplay();
+            this.nextPieces = new NextPiecesDisplay(images.tiles);
             
             this.board.addGraphicsToScene(this);
-            this.nextpieces.addGraphicsToScene(this);
+            this.nextPieces.addGraphicsToScene(this);
+            this.scoreboard.addGraphicsToScene(this);
+            this.targetDisplay.addGraphicsToScene(this);
         },
         
         onenterframe: function () {
