@@ -34,11 +34,17 @@
             
             this.images = images;
             this.image = this.images.base;
+            this.selected = false;
+            this.number = 0;
+        },
+        
+        onenterframe: function () {
+            // !!! update tile
         }
     });
     
-    Tile.prototype.change = function (number) {
-        console.error("change tile graphic");
+    Tile.prototype.change = function () {
+        console.error("change tile number");
     };
     
     var NextPiecesDisplay = Class.create(Group, {
@@ -46,6 +52,8 @@
             var i, temp;
             
             Group.call(this);
+            
+            this.tileSelected = false;
             
             this.bg = new Label();
             this.bg.width = (Constants.tilesize * Constants.numberOfChoices) + (2 * (Constants.numberOfChoices + 1));
@@ -171,6 +179,7 @@
             Scene.call(this);
             
             this.backgroundColor = Constants.gamebgc;
+            this.isTouched = false;
             this.board = new Board(images.tiles, options.boardsize);
             this.scoreboard = new Scoreboard();
             this.targetDisplay = new TargetDisplay();
@@ -180,10 +189,33 @@
             this.nextPieces.addGraphicsToScene(this);
             this.scoreboard.addGraphicsToScene(this);
             this.targetDisplay.addGraphicsToScene(this);
+            
+            this.cursor = new Sprite(2, 2);
+            this.cursor.backgroundColor = "red";
+            this.cursor.x = 0;
+            this.cursor.y = 0;
+            this.addEventListener(Event.TOUCH_START, function (e) {
+                this.cursor.x = e.x;
+                this.cursor.y = e.y;
+            });
+            
+            this.addChild(this.cursor);
         },
         
         onenterframe: function () {
-            console.info("new frame");
+            var i, j;
+            if (this.nextPieces.tileSelected) {
+                console.error("choose where to put it");
+            } else {
+                for (i = 0; i < this.nextPieces.tiles.length; i++) {
+                    if (this.cursor.intersect(this.nextPieces.tiles[i])) {
+                        this.nextPieces.tiles[i].selected = true;
+                        this.nextPieces.tileSelected = true;
+                        console.info("selected tile " + i);
+                        break;
+                    }
+                }
+            }
         }
     });
 }(window.Scenes = window.Scenes || {}));
