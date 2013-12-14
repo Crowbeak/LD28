@@ -34,17 +34,38 @@
             
             this.images = images;
             this.image = this.images.base;
-            this.selected = false;
-            this.number = 0;
+            this.active = false;
+            this.type = 0;
+            this.typeChanged = false;
         },
         
         onenterframe: function () {
-            // !!! update tile
+            if (this.typeChanged) {
+                switch (this.type) {
+                case 1:
+                    this.image = this.images.one;
+                    break;
+                case 2:
+                    this.image = this.images.two;
+                    break;
+                case 3:
+                    this.image = this.images.three;
+                    break;
+                case 4:
+                    this.image = this.images.four;
+                    break;
+                default:
+                    this.image = this.images.base;
+                }
+                this.typeChanged = false;
+            }
         }
     });
     
-    Tile.prototype.change = function () {
-        console.error("change tile number");
+    Tile.prototype.change = function (type) {
+        console.info("tile change num " + type);
+        this.type = type;
+        this.typeChanged = true;
     };
     
     var NextPiecesDisplay = Class.create(Group, {
@@ -53,7 +74,8 @@
             
             Group.call(this);
             
-            this.tileSelected = false;
+            this.tileActive = false;
+            this.newType = 0;
             
             this.bg = new Label();
             this.bg.width = (Constants.tilesize * Constants.numberOfChoices) + (2 * (Constants.numberOfChoices + 1));
@@ -80,13 +102,36 @@
         }
     };
     
+    NextPiecesDisplay.prototype.generateTiles = function () {
+        var i;
+        var types = [];
+        types[0] = Math.floor((Math.random() * 4) + 1);
+        i = Math.floor((Math.random() * 4) + 1);
+        while (types[0] === i) {
+            i = Math.floor((Math.random() * 4) + 1);
+        }
+        types[1] = i;
+        for (i = 0; i < this.tiles.length; i++) {
+            this.tiles[i].change(types[i]);
+            this.tiles[i].active = false;
+        }
+        this.tileActive = false;
+    };
+    
+    NextPiecesDisplay.prototype.selectTile = function (num) {
+        this.tiles[num].active = true;
+        this.tileActive = true;
+        this.newType = this.tiles[num].type;
+        console.info("active tile " + num);
+    };
+    
     var Scoreboard = Class.create(Group, {
         initialize: function () {
             Group.call(this);
             
             this.score = 0;
             
-            this.scoreDisplay = new Label("0");
+            this.scoreDisplay = new Label();
             this.scoreDisplay.height = 90;
             this.scoreDisplay.width = 180;
             this.scoreDisplay.font = "80px arial,sans-serif";
@@ -102,16 +147,16 @@
             this.title.y = Constants.stageHeight - this.scoreDisplay.height - this.title.height;
             this.title.color = "#333333";
             this.title.font = "20px arial,sans-serif";
-        },
-        
-        onenterframe: function () {
-            this.text = this.score;
         }
     });
     
     Scoreboard.prototype.addGraphicsToScene = function (scene) {
         scene.addChild(this.scoreDisplay);
         scene.addChild(this.title);
+    };
+    
+    Scoreboard.prototype.updateScore = function () {
+        this.scoreDisplay.text = this.score;
     };
     
     var TargetDisplay = Class.create(Group, {
@@ -170,6 +215,10 @@
         }
     };
     
+    Board.prototype.placeTile = function (i, newType) {
+        this.tiles[i].change(newType);
+    };
+    
     /**
      * The scene where all the gaming happens.
      */
@@ -184,39 +233,46 @@
             this.scoreboard = new Scoreboard();
             this.targetDisplay = new TargetDisplay();
             this.nextPieces = new NextPiecesDisplay(images.tiles);
+            this.nextPieces.generateTiles();
             
             this.board.addGraphicsToScene(this);
             this.nextPieces.addGraphicsToScene(this);
             this.scoreboard.addGraphicsToScene(this);
             this.targetDisplay.addGraphicsToScene(this);
             
-            this.cursor = new Sprite(10, 10);
-            this.cursor.backgroundColor = "red";
-//            this.cursor.x = 0;
-//            this.cursor.y = 0;
+            this.clickpoint = new Sprite(2, 2);
+//            this.clickpoint.backgroundColor = "white";
+            this.clickpoint.reset = function () {
+                this.x = 0;
+                this.y = 0;
+            };
             this.addEventListener(Event.TOUCH_START, function (e) {
-                console.info("x" + e.x + "y" + e.y);
-                this.cursor.x = e.x;
-                this.cursor.y = e.y;
+//                console.info("x" + e.x + "y" + e.y);
+                this.clickpoint.x = e.x;
+                this.clickpoint.y = e.y;
             });
-            
-            this.addChild(this.cursor);
+            this.addChild(this.clickpoint);
         },
         
         onenterframe: function () {
-            var i, j;
-            if (this.nextPieces.tileSelected) {
-                console.error("choose where to put it");
+            var i;
+            if (this.nextPieces.tileActive) {
+                for (i = 0; i < this.board.tiles.length; i++) {
+                    if ((this.clickpoint.intersect(this.board.tiles[i]))) {
+                        this.board.placeTile(i, this.nextPieces.newType);
+                        this.nextPieces.generateTiles();
+                        break;
+                    }
+                }
             } else {
                 for (i = 0; i < this.nextPieces.tiles.length; i++) {
-                    if (this.cursor.intersect(this.nextPieces.tiles[i])) {
-                        this.nextPieces.tiles[i].selected = true;
-                        this.nextPieces.tileSelected = true;
-                        console.info("selected tile " + i);
+                    if (this.clickpoint.intersect(this.nextPieces.tiles[i])) {
+                        this.nextPieces.selectTile(i);
                         break;
                     }
                 }
             }
+            this.scoreboard.updateScore();
         }
     });
 }(window.Scenes = window.Scenes || {}));
