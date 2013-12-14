@@ -190,11 +190,12 @@
             this.scoreboard.addGraphicsToScene(this);
             this.targetDisplay.addGraphicsToScene(this);
             
-            this.cursor = new Sprite(2, 2);
+            this.cursor = new Sprite(10, 10);
             this.cursor.backgroundColor = "red";
-            this.cursor.x = 0;
-            this.cursor.y = 0;
+//            this.cursor.x = 0;
+//            this.cursor.y = 0;
             this.addEventListener(Event.TOUCH_START, function (e) {
+                console.info("x" + e.x + "y" + e.y);
                 this.cursor.x = e.x;
                 this.cursor.y = e.y;
             });
