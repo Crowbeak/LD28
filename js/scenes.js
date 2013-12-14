@@ -1,0 +1,142 @@
+// LD28 YOGO
+// by Lena LeRay
+//
+// A puzzley strategy game in which the player only gets one of two
+// possible pieces.
+
+/*jslint    browser:true,
+            devel:true,
+            plusplus:true,
+            vars:true */
+
+/*global    Constants,
+            enchant,
+                Class,
+                Core,
+                Event,
+                Group,
+                Label,
+                Node,
+                Scene,
+                Sprite,
+                Surface, */
+
+
+(function (Scenes) {
+    "use strict";
+    
+    /**
+     * Takes block of all tile images.
+     */
+    var Tile = Class.create(Sprite, {
+        initialize: function (images, tilesize) {
+            Sprite.call(this, tilesize, tilesize);
+            
+            this.images = images;
+            this.image = this.images.base;
+        }
+    });
+    
+    Tile.prototype.change = function (number) {
+        console.error("change tile graphic");
+    };
+    
+    var NextPiecesDisplay = Class.create(Group, {
+        initialize: function (tileimages) {
+            var i, temp;
+            
+            Group.call(this);
+            
+            this.bg = new Label();
+            this.bg.width = (Constants.tilesize * Constants.numberOfChoices) + (2 * (Constants.numberOfChoices + 1));
+            this.bg.height = Constants.tilesize + 4;
+            this.bg.backgroundColor = "black";
+            this.bg.x = (Constants.stageWidth / 2) - (this.bg.width / 2);
+            this.bg.y = Constants.stageHeight - this.bg.height;
+            
+            this.tiles = [];
+            for (i = 0; i < 2; i++) {
+                temp = new Tile(tileimages, Constants.tilesize);
+                temp.x = this.bg.x + (2 * (i + 1)) + (i * 100);
+                temp.y = this.bg.y + 2;
+                this.tiles.push(temp);
+            }
+        }
+    });
+    
+    NextPiecesDisplay.prototype.addGraphicsToScene = function (scene) {
+        var i;
+        scene.addChild(this.bg);
+        for (i = 0; i < this.tiles.length; i++) {
+            scene.addChild(this.tiles[i]);
+        }
+    };
+    
+    var Scoreboard = Class.create(Group, {
+        initialize: function () {
+            Group.call(this);
+            
+            console.error("init scoreboard");
+        }
+    });
+    
+    var TargetDisplay = Class.create(Group, {
+        initialize: function () {
+            Group.call(this);
+            
+            console.error("init target shape display");
+        }
+    });
+    
+    var Board = Class.create(Group, {
+        initialize: function (tileimages, options) {
+            var i, j, temp;
+            
+            Group.call(this);
+            
+            this.rows = options.rows;
+            this.cols = options.cols;
+            console.info("rows " + this.rows + " cols " + this.cols);
+            
+            this.tiles = [];
+            for (i = 0; i < this.cols; i++) {
+                for (j = 0; j < this.rows; j++) {
+                    temp = new Tile(tileimages, Constants.tilesize);
+                    temp.x = Constants.boardx + (i * Constants.tilesize) - ((this.cols - 1) - (2 * i));
+                    temp.y = Constants.boardy + (j * Constants.tilesize) - ((this.rows - 1) - (2 * j));
+                    this.tiles[this.tiles.length] = temp;
+                }
+            }
+        }
+    });
+    
+    Board.prototype.addGraphicsToScene = function (scene) {
+        var i;
+        for (i = 0; i < this.tiles.length; i++) {
+            scene.addChild(this.tiles[i]);
+        }
+    };
+    
+    /**
+     * The scene where all the gaming happens.
+     */
+    Scenes.gameplay = Class.create(Scene, {
+        initialize: function (images, sounds, options) {
+            console.info("init game scene");
+            Scene.call(this);
+            
+            this.backgroundColor = Constants.gamebgc;
+            this.board = new Board(images.tiles, options.boardsize);
+            this.scoreboard = new Scoreboard();
+            this.targetdisplay = new TargetDisplay();
+            this.nextpieces = new NextPiecesDisplay(images.tiles);
+            
+            this.board.addGraphicsToScene(this);
+            this.nextpieces.addGraphicsToScene(this);
+        },
+        
+        onenterframe: function () {
+            console.info("new frame");
+        }
+    });
+}(window.Scenes = window.Scenes || {}));
