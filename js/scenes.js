@@ -19,7 +19,8 @@
                 Node,
                 Scene,
                 Sprite,
-                Surface, */
+                Surface,
+            Shapes */
 
 
 (function (Scenes) {
@@ -65,6 +66,11 @@
     Tile.prototype.change = function (type) {
         console.info("tile change num " + type);
         this.type = type;
+        this.typeChanged = true;
+    };
+    
+    Tile.prototype.reset = function () {
+        this.type = 0;
         this.typeChanged = true;
     };
     
@@ -163,8 +169,10 @@
     };
     
     var TargetDisplay = Class.create(Group, {
-        initialize: function () {
+        initialize: function (images) {
             Group.call(this);
+            
+            this.images = images;
             
             this.bg = new Label();
             this.bg.height = 90;
@@ -181,12 +189,18 @@
             this.title.color = "#333333";
             this.title.font = "20px arial,sans-serif";
             this.title.textAlign = "right";
+            
+            this.nextTarget = new Sprite(180, 90);
+            this.nextTarget.image = this.images.straight;
+            this.nextTarget.x = this.bg.x;
+            this.nextTarget.y = this.bg.y;
         }
     });
     
     TargetDisplay.prototype.addGraphicsToScene = function (scene) {
         scene.addChild(this.bg);
         scene.addChild(this.title);
+        scene.addChild(this.nextTarget);
     };
     
     var Board = Class.create(Group, {
@@ -200,6 +214,7 @@
             this.cols = options.cols;
             console.info("rows " + this.rows + " cols " + this.cols);
             this.tilePlaced = false;
+            this.lastTypeMatched = 0;
             
             this.tiles = [];
             for (i = 0; i < this.rows; i++) {
@@ -226,20 +241,54 @@
         this.tilePlaced = true;
     };
     
+    // returns object with two fields representing the number
+    // of points to add and an array of tiles to be removed from
+    // the board
     Board.prototype.checkState = function () {
+        var tilesToRemove, pts;
         if (this.tilePlaced) {
-            console.error("check for shapes");
+            tilesToRemove = this.checkForShapes();
+            pts = this.calculatePoints(tilesToRemove);
             this.tilePlaced = false;
             return {
-                points: 0,
-                restTiles: []
+                points: pts,
+                tilesToRemove: tilesToRemove
             };
         } else {
             return {
                 points: 0,
-                restTiles: []
+                tilesToRemove: []
             };
         }
+    };
+    
+    //returns array of tile indices to be removed from the board
+    Board.prototype.checkForShapes = function () {
+        var i, shapeData;
+        for (i = 0; i < this.tiles.length; i++) {
+            shapeData = Shapes.checkALLtheShapes({ tileList: this.tiles,
+                                                   ii: i,
+                                                   colHeight: this.rows,
+                                                   rowWidth: this.cols });
+            if (shapeData.needToRemove) {
+                return shapeData.tilesToRemove;
+            }
+        }
+        return [];
+    };
+    
+    Board.prototype.removeTiles = function (tilesToRemove) {
+        var i;
+        for (i = 0; i < tilesToRemove.length; i++) {
+            this.tiles[tilesToRemove[i]].reset();
+        }
+    };
+    
+    //returns number of points to add to score
+    Board.prototype.calculatePoints = function (tilesToRemove) {
+        if (tilesToRemove.length > 0) {
+            return 1;
+        } else { return 0; }
     };
     
     /**
@@ -254,7 +303,7 @@
             this.isTouched = false;
             this.board = new Board(images.tiles, options.boardsize, sounds);
             this.scoreboard = new Scoreboard();
-            this.targetDisplay = new TargetDisplay();
+            this.targetDisplay = new TargetDisplay(images.shapes);
             this.nextPieces = new NextPiecesDisplay(images.tiles, sounds.click);
             this.nextPieces.generateTiles();
             
@@ -281,7 +330,7 @@
             var i;
             var boardState = {
                 points: 0,
-                resetTiles: []
+                tilesToRemove: []
             };
             
             if (this.nextPieces.tileActive) {
@@ -301,6 +350,9 @@
                 }
             }
             boardState = this.board.checkState();
+            if (boardState.tilesToRemove.length > 0) {
+                this.board.removeTiles(boardState.tilesToRemove);
+            }
             this.scoreboard.update(boardState.points);
         }
     });

@@ -24,7 +24,8 @@
                 Scene,
                 Sprite,
                 Surface,
-            Scenes */
+            Scenes,
+            Shapes */
 
 
 // Initialize and start the game.
@@ -37,6 +38,8 @@ $(document).ready(function () {
                  'img/yellow.png',
                  'img/green.png',
                  'img/blue.png',
+                 'img/straight.png',
+                 'sound/badmove.wav',
                  'sound/click.wav',
                  'sound/gung.wav',
                  'sound/shoonk.wav',
@@ -52,9 +55,13 @@ $(document).ready(function () {
                 two: game.assets['img/blue.png'],
                 three: game.assets['img/yellow.png'],
                 four: game.assets['img/green.png']
+            },
+            shapes: {
+                straight: game.assets['img/straight.png']
             }
         };
         var sounds = {
+            badmove: game.assets['sound/badmove.wav'],
             click: game.assets['sound/click.wav'],
             gung: game.assets['sound/gung.wav'],
             shoonk: game.assets['sound/shoonk.wav'],
