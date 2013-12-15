@@ -252,7 +252,7 @@
             this.tilePlaced = false;
             return {
                 points: pts,
-                tilesToRemove: tilesToRemove
+                tilesToRemove: tilesToRemove.indices
             };
         } else {
             return {
@@ -274,7 +274,7 @@
                 return shapeData.tilesToRemove;
             }
         }
-        return [];
+        return Shapes.noTilesToRemove();
     };
     
     Board.prototype.removeTiles = function (tilesToRemove) {
@@ -286,8 +286,14 @@
     
     //returns number of points to add to score
     Board.prototype.calculatePoints = function (tilesToRemove) {
-        if (tilesToRemove.length > 0) {
-            return 1;
+        if (tilesToRemove.indices.length > 0) {
+            if ((tilesToRemove.tileType === this.lastTypeMatched) || (this.lastTypeMatched === 0)) {
+                this.lastTypeMatched = tilesToRemove.tileType;
+                return 1;
+            } else {
+                this.lastTypeMatched = tilesToRemove.tileType;
+                return 2;
+            }
         } else { return 0; }
     };
     

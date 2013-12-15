@@ -66,26 +66,42 @@ var rw = params.rowWidth;
         }
     };
     
-    // returns object with two fields indicating whether or not to remove
-    // tiles and if so which ones
-    Shapes.checkALLtheShapes = function (params) {
-        var temp = {
-            needToRemove: false,
-            tilesToRemove: []
+    
+    function ReturnObject() {
+        this.needToRemove = false;
+        this.tilesToRemove = {
+            indices: [],
+            tileType: 0
         };
+    }
+    
+    ReturnObject.prototype.flagForRemoval = function (type) {
+        this.needToRemove = true;
+        this.tilesToRemove.tileType = type;
+    };
+    
+    Shapes.noTilesToRemove = function () {
+        var temp = new ReturnObject();
+        return temp.tilesToRemove;
+    };
+    
+    // returns object with three fields indicating whether or not to remove
+    // tiles, if so which ones, and their type.
+    Shapes.checkALLtheShapes = function (params) {
+        var returnObj = new ReturnObject();
         var i = params.ii;
         var testTile = params.tileList[i];
         
         if (testTile.type === 0) {
-            return temp;
+            return returnObj;
         } else if (straight.horizontal(params)) {
-            temp.needToRemove = true;
-            temp.tilesToRemove = straight.htiles(params);
+            returnObj.tilesToRemove.indices = straight.htiles(params);
+            returnObj.flagForRemoval(testTile.type);
         } else if (straight.vertical(params)) {
-            temp.needToRemove = true;
-            temp.tilesToRemove = straight.vtiles(params);
+            returnObj.tilesToRemove.indices = straight.vtiles(params);
+            returnObj.flagForRemoval(testTile.type);
         }
         
-        return temp;
+        return returnObj;
     };
 }(window.Shapes = window.Shapes || {}));
