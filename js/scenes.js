@@ -26,6 +26,50 @@
 (function (Scenes) {
     "use strict";
     
+    var UITitle = Class.create(Label, {
+        initialize: function (text, textAlign) {
+            Label.call(this, text);
+            
+            this.height = 20;
+            this.width = 180;
+            this.color = Constants.cdisplayColor;
+            this.font = "20px arial,sans-serif";
+            if (textAlign === "left") {
+                this.x = Constants.padding;
+            } else if (textAlign === "right") {
+                this.x = Constants.stageWidth - Constants.cdisplayWidth - Constants.padding;
+            }
+            this.y = Constants.stageHeight - Constants.cdisplayHeight - this.height;
+            this.textAlign = textAlign;
+            
+        }
+    });
+    
+    
+    var UIBackground = Class.create(Label, {
+        initialize: function (location) {
+            Label.call(this);
+            
+            if (location === "center") {
+                this.width = (Constants.tilesize * Constants.numberOfChoices) + (Constants.padding * (Constants.numberOfChoices + 1));
+                this.height = Constants.tilesize + (Constants.numberOfChoices * Constants.padding);
+                this.backgroundColor = "black";
+                this.x = (Constants.stageWidth / 2) - (this.width / 2);
+                this.y = Constants.stageHeight - this.height;
+            } else {
+                this.height = Constants.cdisplayHeight;
+                this.width = Constants.cdisplayWidth;
+                this.backgroundColor = Constants.cdisplayColor;
+                if (location === "left") {
+                    this.x = 0;
+                } else if (location === "right") {
+                    this.x = Constants.stageWidth - this.width;
+                }
+                this.y = Constants.stageHeight - this.height;
+            }
+        }
+    });
+    
     /**
      * Takes block of all tile images.
      */
@@ -74,6 +118,7 @@
         this.typeChanged = true;
     };
     
+    
     var NextPiecesDisplay = Class.create(Group, {
         initialize: function (tileimages, clickSound) {
             var i, temp;
@@ -84,18 +129,13 @@
             this.tileActive = false;
             this.newType = 0;
             
-            this.bg = new Label();
-            this.bg.width = (Constants.tilesize * Constants.numberOfChoices) + (2 * (Constants.numberOfChoices + 1));
-            this.bg.height = Constants.tilesize + 4;
-            this.bg.backgroundColor = "black";
-            this.bg.x = (Constants.stageWidth / 2) - (this.bg.width / 2);
-            this.bg.y = Constants.stageHeight - this.bg.height;
+            this.bg = new UIBackground("center");
             
             this.tiles = [];
-            for (i = 0; i < 2; i++) {
+            for (i = 0; i < Constants.numberOfChoices; i++) {
                 temp = new Tile(tileimages, Constants.tilesize);
-                temp.x = this.bg.x + (2 * (i + 1)) + (i * 100);
-                temp.y = this.bg.y + 2;
+                temp.x = this.bg.x + (Constants.padding * (i + 1)) + (i * 100);
+                temp.y = this.bg.y + Constants.padding;
                 this.tiles.push(temp);
             }
         }
@@ -133,28 +173,19 @@
         console.info("active tile " + num);
     };
     
+    
     var Scoreboard = Class.create(Group, {
         initialize: function () {
             Group.call(this);
             
             this.score = 0;
             
-            this.scoreDisplay = new Label();
-            this.scoreDisplay.height = 90;
-            this.scoreDisplay.width = 180;
+            this.scoreDisplay = new UIBackground("left");
             this.scoreDisplay.font = "80px arial,sans-serif";
             this.scoreDisplay.textAlign = "center";
             this.scoreDisplay.color = "white";
-            this.scoreDisplay.backgroundColor = "#333333";
-            this.scoreDisplay.x = 0;
-            this.scoreDisplay.y = Constants.stageHeight - this.scoreDisplay.height;
             
-            this.title = new Label("SCORE");
-            this.title.height = 20;
-            this.title.x = 2;
-            this.title.y = Constants.stageHeight - this.scoreDisplay.height - this.title.height;
-            this.title.color = "#333333";
-            this.title.font = "20px arial,sans-serif";
+            this.title = new UITitle("SCORE", "left");
         }
     });
     
@@ -168,32 +199,29 @@
         this.scoreDisplay.text = this.score;
     };
     
+    
+    var NextTarget = Class.create(Sprite, {
+        initialize: function (images, xCoord, yCoord) {
+            Sprite.call(this, Constants.cdisplayWidth, Constants.cdisplayHeight);
+            
+            this.image = images.square;
+            this.x = xCoord;
+            this.y = yCoord;
+            
+            this.target = 0;
+        }
+    });
+    
+    
     var TargetDisplay = Class.create(Group, {
         initialize: function (images) {
             Group.call(this);
             
             this.images = images;
+            this.bg = new UIBackground("right");
+            this.title = new UITitle("MAKE THIS", "right");
             
-            this.bg = new Label();
-            this.bg.height = 90;
-            this.bg.width = 180;
-            this.bg.x = Constants.stageWidth - this.bg.width;
-            this.bg.y = Constants.stageHeight - this.bg.height;
-            this.bg.backgroundColor = "#333333";
-            
-            this.title = new Label("NEXT SHAPE");
-            this.title.height = 20;
-            this.title.width = 180;
-            this.title.x = Constants.stageWidth - this.title.width - 2;
-            this.title.y = Constants.stageHeight - this.bg.height - this.title.height;
-            this.title.color = "#333333";
-            this.title.font = "20px arial,sans-serif";
-            this.title.textAlign = "right";
-            
-            this.nextTarget = new Sprite(180, 90);
-            this.nextTarget.image = this.images.straight;
-            this.nextTarget.x = this.bg.x;
-            this.nextTarget.y = this.bg.y;
+            this.nextTarget = new NextTarget(this.images, this.bg.x, this.bg.y);
         }
     });
     
@@ -202,6 +230,11 @@
         scene.addChild(this.title);
         scene.addChild(this.nextTarget);
     };
+    
+    TargetDisplay.prototype.generateNextTarget = function () {
+        console.error("TargetDisplay.generateNextTarget");
+    };
+    
     
     var Board = Class.create(Group, {
         initialize: function (tileimages, options, sounds) {
@@ -220,8 +253,8 @@
             for (i = 0; i < this.rows; i++) {
                 for (j = 0; j < this.cols; j++) {
                     temp = new Tile(tileimages, Constants.tilesize);
-                    temp.x = Constants.boardx + (j * Constants.tilesize) - ((this.cols - 1) - (2 * j));
-                    temp.y = Constants.boardy + (i * Constants.tilesize) - ((this.rows - 1) - (2 * i));
+                    temp.x = Constants.boardx + (j * Constants.tilesize) - ((this.cols - 1) - (Constants.padding * j));
+                    temp.y = Constants.boardy + (i * Constants.tilesize) - ((this.rows - 1) - (Constants.padding * i));
                     this.tiles.push(temp);
                 }
             }
@@ -317,8 +350,9 @@
             this.nextPieces.addGraphicsToScene(this);
             this.scoreboard.addGraphicsToScene(this);
             this.targetDisplay.addGraphicsToScene(this);
+            this.targetDisplay.generateNextTarget();
             
-            this.clickpoint = new Sprite(2, 2);
+            this.clickpoint = new Sprite(Constants.padding, Constants.padding);
 //            this.clickpoint.backgroundColor = "white";
             this.clickpoint.reset = function () {
                 this.x = 0;

@@ -21,9 +21,13 @@ enchant();
 var Constants = {
     boardx: 100,
     boardy: 50,
+    cdisplayColor: "#333333",
+    cdisplayWidth: 180,
+    cdisplayHeight: 90,
     fps: 20,
     gamebgc: "lightgray",
     numberOfChoices: 2,
+    padding: 2,
     stageHeight: 600,
     stageWidth: 800,
     tilesize: 100,
