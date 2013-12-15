@@ -31,8 +31,29 @@ var rw = params.rowWidth;
 (function (Shapes) {
     "use strict";
     
+    // All shape objects assume 4+ rows and 6+ columns.
+    // Each shape has a boolean function for each possible orientation.
+    // Each shape has a function which returns an array of tile indices.
+    
+    var square = {
+        square: function (params) {
+            var tiles = params.tileList;
+            var i = params.ii;
+            var ch = params.colHeight;
+            var rw = params.rowWidth;
+            
+            if (((i % rw) < (rw - 1)) && (i < ((ch - 1) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + 1 + rw].type)) {
+                return true;
+            } else { return false; }
+        },
+        sTiles: function (params) {
+            var i = params.ii;
+            var rw = params.rowWidth;
+            return [i, i + 1, i + rw, i + 1 + rw];
+        }
+    };
+    
     var straight = {
-        //returns a boolean value
         horizontal: function (params) {
             var tiles = params.tileList;
             var i = params.ii;
@@ -43,13 +64,11 @@ var rw = params.rowWidth;
             } else { return false; }
         },
         //
-        htiles: function (params) {
+        hTiles: function (params) {
             var i = params.ii;
             return [i, i + 1, i + 2, i + 3];
         },
         
-        //returns a boolean value
-        //assumes at least 4 rows
         vertical: function (params) {
             var tiles = params.tileList;
             var i = params.ii;
@@ -60,10 +79,46 @@ var rw = params.rowWidth;
                 return true;
             } else { return false; }
         },
-        vtiles: function (params) {
+        vTiles: function (params) {
             var i = params.ii;
             var rw = params.rowWidth;
             return [i, i + rw, i + (2 * rw), i + (3 * rw)];
+        }
+    };
+    
+    
+    var zblock = {
+        horizontal: function (params) {
+            var tiles = params.tileList;
+            var i = params.ii;
+            var ch = params.colHeight;
+            var rw = params.rowWidth;
+            
+            if (((i % rw) < (rw - 2)) && (i < ((ch - 1) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 1 + rw].type) && (tiles[i].type === tiles[i + 2 + rw].type)) {
+                return true;
+            } else { return false; }
+        },
+        //
+        hTiles: function (params) {
+            var i = params.ii;
+            var rw = params.rowWidth;
+            return [i, i + 1, i + 1 + rw, i + 2 + rw];
+        },
+        
+        vertical: function (params) {
+            var tiles = params.tileList;
+            var i = params.ii;
+            var ch = params.colHeight;
+            var rw = params.rowWidth;
+            
+            if (((i % rw) > 0) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i - 1 + rw].type) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i - 1 + (2 * rw)].type)) {
+                return true;
+            } else { return false; }
+        },
+        vTiles: function (params) {
+            var i = params.ii;
+            var rw = params.rowWidth;
+            return [i, i - 1 + rw, i + rw, i - 1 + (2 * rw)];
         }
     };
     
@@ -80,7 +135,7 @@ var rw = params.rowWidth;
                 return true;
             } else { return false; }
         },
-        ltiles: function (params) {
+        lTiles: function (params) {
             var i = params.ii;
             var rw = params.rowWidth;
             return [i, i + 1, i + 2, i + 2 + rw];
@@ -96,7 +151,7 @@ var rw = params.rowWidth;
                 return true;
             } else { return false; }
         },
-        utiles: function (params) {
+        uTiles: function (params) {
             var i = params.ii;
             var rw = params.rowWidth;
             return [i, i + rw, i + (2 * rw), i + (2 * rw) - 1];
@@ -112,7 +167,7 @@ var rw = params.rowWidth;
                 return true;
             } else { return false; }
         },
-        rtiles: function (params) {
+        rTiles: function (params) {
             var i = params.ii;
             var rw = params.rowWidth;
             return [i, i + rw, i + 1 + rw, i + 2 + rw];
@@ -128,7 +183,7 @@ var rw = params.rowWidth;
                 return true;
             } else { return false; }
         },
-        dtiles: function (params) {
+        dTiles: function (params) {
             var i = params.ii;
             var rw = params.rowWidth;
             return [i, i + 1, i + rw, i + (2 * rw)];
@@ -163,25 +218,32 @@ var rw = params.rowWidth;
         
         if (testTile.type === 0) {
             return returnObj;
-        // straight block
+        } else if (square.square(params)) {
+            returnObj.tilesToRemove.indices = square.sTiles(params);
+            returnObj.flagForRemoval(testTile.type);
         } else if (straight.horizontal(params)) {
-            returnObj.tilesToRemove.indices = straight.htiles(params);
+            returnObj.tilesToRemove.indices = straight.hTiles(params);
             returnObj.flagForRemoval(testTile.type);
         } else if (straight.vertical(params)) {
-            returnObj.tilesToRemove.indices = straight.vtiles(params);
+            returnObj.tilesToRemove.indices = straight.vTiles(params);
             returnObj.flagForRemoval(testTile.type);
-        //lgun block
+        } else if (zblock.horizontal(params)) {
+            returnObj.tilesToRemove.indices = zblock.hTiles(params);
+            returnObj.flagForRemoval(testTile.type);
+        } else if (zblock.vertical(params)) {
+            returnObj.tilesToRemove.indices = zblock.vTiles(params);
+            returnObj.flagForRemoval(testTile.type);
         } else if (lgun.left(params)) {
-            returnObj.tilesToRemove.indices = lgun.ltiles(params);
+            returnObj.tilesToRemove.indices = lgun.lTiles(params);
             returnObj.flagForRemoval(testTile.type);
         } else if (lgun.up(params)) {
-            returnObj.tilesToRemove.indices = lgun.utiles(params);
+            returnObj.tilesToRemove.indices = lgun.uTiles(params);
             returnObj.flagForRemoval(testTile.type);
         } else if (lgun.right(params)) {
-            returnObj.tilesToRemove.indices = lgun.rtiles(params);
+            returnObj.tilesToRemove.indices = lgun.rTiles(params);
             returnObj.flagForRemoval(testTile.type);
         } else if (lgun.down(params)) {
-            returnObj.tilesToRemove.indices = lgun.dtiles(params);
+            returnObj.tilesToRemove.indices = lgun.dTiles(params);
             returnObj.flagForRemoval(testTile.type);
         }
         
