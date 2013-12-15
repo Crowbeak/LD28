@@ -123,6 +123,42 @@ var rw = params.rowWidth;
     };
     
     
+    var sblock = {
+        horizontal: function (params) {
+            var tiles = params.tileList;
+            var i = params.ii;
+            var ch = params.colHeight;
+            var rw = params.rowWidth;
+            
+            if (((i % rw) < (rw - 2)) && (i >= rw) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 1 - rw].type) && (tiles[i].type === tiles[i + 2 - rw].type)) {
+                return true;
+            } else { return false; }
+        },
+        //
+        hTiles: function (params) {
+            var i = params.ii;
+            var rw = params.rowWidth;
+            return [i, i + 1, i + 1 - rw, i + 2 - rw];
+        },
+        
+        vertical: function (params) {
+            var tiles = params.tileList;
+            var i = params.ii;
+            var ch = params.colHeight;
+            var rw = params.rowWidth;
+            
+            if (((i % rw) < (rw - 1)) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + 1 + rw].type) && (tiles[i].type === tiles[i + 1 + (2 * rw)].type)) {
+                return true;
+            } else { return false; }
+        },
+        vTiles: function (params) {
+            var i = params.ii;
+            var rw = params.rowWidth;
+            return [i, i + rw, i + 1 + rw, i + 1 + (2 * rw)];
+        }
+    };
+    
+    
     var lgun = {
         //barrel pointing left, etc.
         left: function (params) {
@@ -232,6 +268,12 @@ var rw = params.rowWidth;
             returnObj.flagForRemoval(testTile.type);
         } else if (zblock.vertical(params)) {
             returnObj.tilesToRemove.indices = zblock.vTiles(params);
+            returnObj.flagForRemoval(testTile.type);
+        } else if (sblock.horizontal(params)) {
+            returnObj.tilesToRemove.indices = sblock.hTiles(params);
+            returnObj.flagForRemoval(testTile.type);
+        } else if (sblock.vertical(params)) {
+            returnObj.tilesToRemove.indices = sblock.vTiles(params);
             returnObj.flagForRemoval(testTile.type);
         } else if (lgun.left(params)) {
             returnObj.tilesToRemove.indices = lgun.lTiles(params);
