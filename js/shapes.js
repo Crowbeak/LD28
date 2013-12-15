@@ -295,6 +295,74 @@ var rw = params.rowWidth;
     };
     
     
+    var tblock = {
+        //stem pointing left, etc.
+        left: function (params) {
+            var tiles = params.tileList;
+            var i = params.ii;
+            var ch = params.colHeight;
+            var rw = params.rowWidth;
+            
+            if (((i % rw) > 0) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i - 1 + rw].type) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + (2 * rw)].type)) {
+                return true;
+            } else { return false; }
+        },
+        lTiles: function (params) {
+            var i = params.ii;
+            var rw = params.rowWidth;
+            return [i, i - 1 + rw, i + rw, i + (2 * rw)];
+        },
+        
+        up: function (params) {
+            var tiles = params.tileList;
+            var i = params.ii;
+            var ch = params.colHeight;
+            var rw = params.rowWidth;
+            
+            if (((i % rw) < (rw - 2)) && (i >= rw) && (tiles[i].type === tiles[i + 1 - rw].type) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 2].type)) {
+                return true;
+            } else { return false; }
+        },
+        uTiles: function (params) {
+            var i = params.ii;
+            var rw = params.rowWidth;
+            return [i, i + 1 - rw, i + 1, i + 2];
+        },
+        
+        right: function (params) {
+            var tiles = params.tileList;
+            var i = params.ii;
+            var ch = params.colHeight;
+            var rw = params.rowWidth;
+            
+            if (((i % rw) < (rw - 1)) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + 1 + rw].type) && (tiles[i].type === tiles[i + (2 * rw)].type)) {
+                return true;
+            } else { return false; }
+        },
+        rTiles: function (params) {
+            var i = params.ii;
+            var rw = params.rowWidth;
+            return [i, i + rw, i + 1 + rw, i + (2 * rw)];
+        },
+        
+        down: function (params) {
+            var tiles = params.tileList;
+            var i = params.ii;
+            var ch = params.colHeight;
+            var rw = params.rowWidth;
+            
+            if (((i % rw) < (rw - 2)) && (i < ((ch - 1) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 1 + rw].type) && (tiles[i].type === tiles[i + 2].type)) {
+                return true;
+            } else { return false; }
+        },
+        dTiles: function (params) {
+            var i = params.ii;
+            var rw = params.rowWidth;
+            return [i, i + 1, i + 1 + rw, i + 2];
+        }
+    };
+    
+    
     function ReturnObject() {
         this.needToRemove = false;
         this.tilesToRemove = {
@@ -366,6 +434,18 @@ var rw = params.rowWidth;
             returnObj.flagForRemoval(testTile.type);
         } else if (rgun.down(params)) {
             returnObj.tilesToRemove.indices = rgun.dTiles(params);
+            returnObj.flagForRemoval(testTile.type);
+        } else if (tblock.left(params)) {
+            returnObj.tilesToRemove.indices = tblock.lTiles(params);
+            returnObj.flagForRemoval(testTile.type);
+        } else if (tblock.up(params)) {
+            returnObj.tilesToRemove.indices = tblock.uTiles(params);
+            returnObj.flagForRemoval(testTile.type);
+        } else if (tblock.right(params)) {
+            returnObj.tilesToRemove.indices = tblock.rTiles(params);
+            returnObj.flagForRemoval(testTile.type);
+        } else if (tblock.down(params)) {
+            returnObj.tilesToRemove.indices = tblock.dTiles(params);
             returnObj.flagForRemoval(testTile.type);
         }
         
