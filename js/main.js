@@ -87,7 +87,11 @@ $(document).ready(function () {
                 rows: 4,
                 cols: 6
             },
-            colorblind: false
+            colorblind: false,
+            targets: {
+                startIndex: Constants.fourTetrominoesStart,
+                numberOfPatterns: Constants.fourTetrominoesNumber
+            }
         };
         
         Constants.bindKeys(game);

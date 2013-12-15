@@ -34,14 +34,18 @@ var rw = params.rowWidth;
     // All shape objects assume 4+ rows and 6+ columns.
     // Each shape has a boolean function for each possible orientation.
     // Each shape has a function which returns an array of tile indices.
+    // New shapes must be manually added to the allTheOrientations array.
     
     var square = {
-        test: function (tiles, i, ch, rw) {
-            return (((i % rw) < (rw - 1)) && (i < ((ch - 1) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + 1 + rw].type));
+        only: {
+            test: function (tiles, i, ch, rw) {
+                return (((i % rw) < (rw - 1)) && (i < ((ch - 1) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + 1 + rw].type));
+            },
+            pattern: function (i, rw) {
+                return [i, i + 1, i + rw, i + 1 + rw];
+            }
         },
-        pattern: function (i, rw) {
-            return [i, i + 1, i + rw, i + 1 + rw];
-        }
+        img: "square"
     };
     
     var straight = {
@@ -61,7 +65,8 @@ var rw = params.rowWidth;
             pattern: function (i, rw) {
                 return [i, i + rw, i + (2 * rw), i + (3 * rw)];
             }
-        }
+        },
+        img: "straight"
     };
     
     
@@ -83,7 +88,8 @@ var rw = params.rowWidth;
             pattern: function (i, rw) {
                 return [i, i - 1 + rw, i + rw, i - 1 + (2 * rw)];
             }
-        }
+        },
+        img: "zblock"
     };
     
     
@@ -105,7 +111,8 @@ var rw = params.rowWidth;
             pattern: function (i, rw) {
                 return [i, i + rw, i + 1 + rw, i + 1 + (2 * rw)];
             }
-        }
+        },
+        img: "sblock"
     };
     
     
@@ -145,7 +152,8 @@ var rw = params.rowWidth;
             pattern: function (i, rw) {
                 return [i, i + 1, i + rw, i + (2 * rw)];
             }
-        }
+        },
+        img: "lgun"
     };
     
     
@@ -185,7 +193,8 @@ var rw = params.rowWidth;
             pattern: function (i, rw) {
                 return [i, i + 1, i + 1 + rw, i + 1 + (2 * rw)];
             }
-        }
+        },
+        img: "rgun"
     };
     
     
@@ -225,11 +234,22 @@ var rw = params.rowWidth;
             pattern: function (i, rw) {
                 return [i, i + 1, i + 1 + rw, i + 2];
             }
-        }
+        },
+        img: "tblock"
     };
     
-    var allTheShapes = [
+    Shapes.shapeObjectList = [
         square,
+        straight,
+        zblock,
+        sblock,
+        lgun,
+        rgun,
+        tblock
+    ];
+    
+    var allTheOrientations = [
+        square.only,
         straight.horizontal,
         straight.vertical,
         zblock.horizontal,
@@ -299,9 +319,9 @@ var rw = params.rowWidth;
         if (testTile.type === 0) {
             return returnObj;
         } else {
-            for (i = 0; i < allTheShapes.length; i++) {
-                if(shapeCheck.test(params, allTheShapes[i])) {
-                    returnObj.tilesToRemove.indices = shapeCheck.returnValues(params, allTheShapes[i]);
+            for (i = 0; i < allTheOrientations.length; i++) {
+                if(shapeCheck.test(params, allTheOrientations[i])) {
+                    returnObj.tilesToRemove.indices = shapeCheck.returnValues(params, allTheOrientations[i]);
                     returnObj.flagForRemoval(testTile.type);
                 }
             }

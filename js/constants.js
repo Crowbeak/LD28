@@ -24,6 +24,8 @@ var Constants = {
     cdisplayColor: "#333333",
     cdisplayWidth: 180,
     cdisplayHeight: 90,
+    fourTetrominoesStart: 0,
+    fourTetrominoesNumber: 7,
     fps: 20,
     gamebgc: "lightgray",
     numberOfChoices: 2,

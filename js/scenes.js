@@ -207,19 +207,33 @@
             this.image = images.square;
             this.x = xCoord;
             this.y = yCoord;
-            
-            this.target = 0;
         }
     });
     
+    NextTarget.prototype.changeImage = function (newImg) {
+        this.image = newImg;
+    };
+    
     
     var TargetDisplay = Class.create(Group, {
-        initialize: function (images) {
+        initialize: function (images, shapeList, targetOptions) {
             Group.call(this);
+            
+            var i;
             
             this.images = images;
             this.bg = new UIBackground("right");
             this.title = new UITitle("MAKE THIS", "right");
+            
+            this.possibleTargets = [];
+            for (i = targetOptions.startIndex; i < targetOptions.numberOfPatterns; i++) {
+                this.possibleTargets.push({
+                    shapeObject: shapeList[i],
+                    imgFile: this.images[shapeList[i].img]
+                });
+            }
+            this.target = 0;
+            this.targetUpdated = false;
             
             this.nextTarget = new NextTarget(this.images, this.bg.x, this.bg.y);
         }
@@ -232,7 +246,15 @@
     };
     
     TargetDisplay.prototype.generateNextTarget = function () {
-        console.error("TargetDisplay.generateNextTarget");
+        this.target = Math.floor(Math.random() * this.possibleTargets.length);
+        this.targetUpdated = true;
+    };
+    
+    TargetDisplay.prototype.update = function () {
+        var possibleTargets = this.possibleTargets;
+        var i = this.target;
+        this.nextTarget.changeImage(possibleTargets[i].imgFile);
+        this.targetUpdated = false;
     };
     
     
@@ -342,7 +364,7 @@
             this.isTouched = false;
             this.board = new Board(images.tiles, options.boardsize, sounds);
             this.scoreboard = new Scoreboard();
-            this.targetDisplay = new TargetDisplay(images.shapes);
+            this.targetDisplay = new TargetDisplay(images.shapes, Shapes.shapeObjectList, options.targets);
             this.nextPieces = new NextPiecesDisplay(images.tiles, sounds.click);
             this.nextPieces.generateTiles();
             
@@ -392,8 +414,12 @@
             boardState = this.board.checkState();
             if (boardState.tilesToRemove.length > 0) {
                 this.board.removeTiles(boardState.tilesToRemove);
+                this.scoreboard.update(boardState.points);
+                this.targetDisplay.generateNextTarget();
             }
-            this.scoreboard.update(boardState.points);
+            if (this.targetDisplay.targetUpdated) {
+                this.targetDisplay.update();
+            }
         }
     });
 }(window.Scenes = window.Scenes || {}));
