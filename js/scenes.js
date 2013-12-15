@@ -157,7 +157,8 @@
         scene.addChild(this.title);
     };
     
-    Scoreboard.prototype.updateScore = function () {
+    Scoreboard.prototype.update = function (points) {
+        this.score += points;
         this.scoreDisplay.text = this.score;
     };
     
@@ -198,6 +199,7 @@
             this.rows = options.rows;
             this.cols = options.cols;
             console.info("rows " + this.rows + " cols " + this.cols);
+            this.tilePlaced = false;
             
             this.tiles = [];
             for (i = 0; i < this.rows; i++) {
@@ -221,6 +223,23 @@
     Board.prototype.placeTile = function (i, newType) {
         this.tiles[i].change(newType);
         this.sounds.shoonk.play();
+        this.tilePlaced = true;
+    };
+    
+    Board.prototype.checkState = function () {
+        if (this.tilePlaced) {
+            console.error("check for shapes");
+            this.tilePlaced = false;
+            return {
+                points: 0,
+                restTiles: []
+            };
+        } else {
+            return {
+                points: 0,
+                restTiles: []
+            };
+        }
     };
     
     /**
@@ -260,6 +279,11 @@
         
         onenterframe: function () {
             var i;
+            var boardState = {
+                points: 0,
+                resetTiles: []
+            };
+            
             if (this.nextPieces.tileActive) {
                 for (i = 0; i < this.board.tiles.length; i++) {
                     if ((this.clickpoint.intersect(this.board.tiles[i])) && (this.board.tiles[i].type === 0)) {
@@ -276,7 +300,8 @@
                     }
                 }
             }
-            this.scoreboard.updateScore();
+            boardState = this.board.checkState();
+            this.scoreboard.update(boardState.points);
         }
     });
 }(window.Scenes = window.Scenes || {}));
