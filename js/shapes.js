@@ -36,329 +36,237 @@ var rw = params.rowWidth;
     // Each shape has a function which returns an array of tile indices.
     
     var square = {
-        square: function (params) {
-            var tiles = params.tileList;
-            var i = params.ii;
-            var ch = params.colHeight;
-            var rw = params.rowWidth;
-            
-            if (((i % rw) < (rw - 1)) && (i < ((ch - 1) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + 1 + rw].type)) {
-                return true;
-            } else { return false; }
+        test: function (tiles, i, ch, rw) {
+            return (((i % rw) < (rw - 1)) && (i < ((ch - 1) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + 1 + rw].type));
         },
-        sTiles: function (params) {
-            var i = params.ii;
-            var rw = params.rowWidth;
+        pattern: function (i, rw) {
             return [i, i + 1, i + rw, i + 1 + rw];
         }
     };
     
     var straight = {
-        horizontal: function (params) {
-            var tiles = params.tileList;
-            var i = params.ii;
-            var rw = params.rowWidth;
-            
-            if (((i % rw) < (rw - 3)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 2].type) && (tiles[i].type === tiles[i + 3].type)) {
-                return true;
-            } else { return false; }
-        },
-        //
-        hTiles: function (params) {
-            var i = params.ii;
-            return [i, i + 1, i + 2, i + 3];
+        horizontal: {
+            test: function (tiles, i, ch, rw) {
+                return (((i % rw) < (rw - 3)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 2].type) && (tiles[i].type === tiles[i + 3].type));
+            },
+            pattern: function (i, rw) {
+                return [i, i + 1, i + 2, i + 3];
+            }
         },
         
-        vertical: function (params) {
-            var tiles = params.tileList;
-            var i = params.ii;
-            var ch = params.colHeight;
-            var rw = params.rowWidth;
-            
-            if ((i < ((ch - 3) * rw)) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + (2 * rw)].type) && (tiles[i].type === tiles[i + (3 * rw)].type)) {
-                return true;
-            } else { return false; }
-        },
-        vTiles: function (params) {
-            var i = params.ii;
-            var rw = params.rowWidth;
-            return [i, i + rw, i + (2 * rw), i + (3 * rw)];
+        vertical: {
+            test: function (tiles, i, ch, rw) {
+                return ((i < ((ch - 3) * rw)) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + (2 * rw)].type) && (tiles[i].type === tiles[i + (3 * rw)].type));
+            },
+            pattern: function (i, rw) {
+                return [i, i + rw, i + (2 * rw), i + (3 * rw)];
+            }
         }
     };
     
     
     var zblock = {
-        horizontal: function (params) {
-            var tiles = params.tileList;
-            var i = params.ii;
-            var ch = params.colHeight;
-            var rw = params.rowWidth;
-            
-            if (((i % rw) < (rw - 2)) && (i < ((ch - 1) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 1 + rw].type) && (tiles[i].type === tiles[i + 2 + rw].type)) {
-                return true;
-            } else { return false; }
-        },
-        //
-        hTiles: function (params) {
-            var i = params.ii;
-            var rw = params.rowWidth;
-            return [i, i + 1, i + 1 + rw, i + 2 + rw];
+        horizontal: {
+            test: function (tiles, i, ch, rw) {
+                return (((i % rw) < (rw - 2)) && (i < ((ch - 1) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 1 + rw].type) && (tiles[i].type === tiles[i + 2 + rw].type));
+            },
+
+            pattern: function (i, rw) {
+                return [i, i + 1, i + 1 + rw, i + 2 + rw];
+            }
         },
         
-        vertical: function (params) {
-            var tiles = params.tileList;
-            var i = params.ii;
-            var ch = params.colHeight;
-            var rw = params.rowWidth;
-            
-            if (((i % rw) > 0) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i - 1 + rw].type) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i - 1 + (2 * rw)].type)) {
-                return true;
-            } else { return false; }
-        },
-        vTiles: function (params) {
-            var i = params.ii;
-            var rw = params.rowWidth;
-            return [i, i - 1 + rw, i + rw, i - 1 + (2 * rw)];
+        vertical: {
+            test: function (tiles, i, ch, rw) {
+                return (((i % rw) > 0) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i - 1 + rw].type) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i - 1 + (2 * rw)].type));
+            },
+            pattern: function (i, rw) {
+                return [i, i - 1 + rw, i + rw, i - 1 + (2 * rw)];
+            }
         }
     };
     
     
     var sblock = {
-        horizontal: function (params) {
-            var tiles = params.tileList;
-            var i = params.ii;
-            var ch = params.colHeight;
-            var rw = params.rowWidth;
+        horizontal: {
+            test: function (tiles, i, ch, rw) {
+                return (((i % rw) < (rw - 2)) && (i >= rw) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 1 - rw].type) && (tiles[i].type === tiles[i + 2 - rw].type));
+            },
             
-            if (((i % rw) < (rw - 2)) && (i >= rw) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 1 - rw].type) && (tiles[i].type === tiles[i + 2 - rw].type)) {
-                return true;
-            } else { return false; }
-        },
-        //
-        hTiles: function (params) {
-            var i = params.ii;
-            var rw = params.rowWidth;
-            return [i, i + 1, i + 1 - rw, i + 2 - rw];
+            pattern: function (i, rw) {
+                return [i, i + 1, i + 1 - rw, i + 2 - rw];
+            }
         },
         
-        vertical: function (params) {
-            var tiles = params.tileList;
-            var i = params.ii;
-            var ch = params.colHeight;
-            var rw = params.rowWidth;
-            
-            if (((i % rw) < (rw - 1)) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + 1 + rw].type) && (tiles[i].type === tiles[i + 1 + (2 * rw)].type)) {
-                return true;
-            } else { return false; }
-        },
-        vTiles: function (params) {
-            var i = params.ii;
-            var rw = params.rowWidth;
-            return [i, i + rw, i + 1 + rw, i + 1 + (2 * rw)];
+        vertical:  {
+            test: function (tiles, i, ch, rw) {
+                return (((i % rw) < (rw - 1)) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + 1 + rw].type) && (tiles[i].type === tiles[i + 1 + (2 * rw)].type));
+            },
+            pattern: function (i, rw) {
+                return [i, i + rw, i + 1 + rw, i + 1 + (2 * rw)];
+            }
         }
     };
     
     
     var lgun = {
         //barrel pointing left, etc.
-        left: function (params) {
-            var tiles = params.tileList;
-            var i = params.ii;
-            var ch = params.colHeight;
-            var rw = params.rowWidth;
-            
-            if (((i % rw) < (rw - 2)) && (i < ((ch - 1) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 2].type) && (tiles[i].type === tiles[i + 2 + rw].type)) {
-                return true;
-            } else { return false; }
-        },
-        lTiles: function (params) {
-            var i = params.ii;
-            var rw = params.rowWidth;
-            return [i, i + 1, i + 2, i + 2 + rw];
+        left: {
+            test: function (tiles, i, ch, rw) {
+                return (((i % rw) < (rw - 2)) && (i < ((ch - 1) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 2].type) && (tiles[i].type === tiles[i + 2 + rw].type));
+            },
+            pattern: function (i, rw) {
+                return [i, i + 1, i + 2, i + 2 + rw];
+            }
         },
         
-        up: function (params) {
-            var tiles = params.tileList;
-            var i = params.ii;
-            var ch = params.colHeight;
-            var rw = params.rowWidth;
-            
-            if (((i % rw) > 0) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + (2 * rw)].type) && (tiles[i].type === tiles[i + (2 * rw) - 1].type)) {
-                return true;
-            } else { return false; }
-        },
-        uTiles: function (params) {
-            var i = params.ii;
-            var rw = params.rowWidth;
-            return [i, i + rw, i + (2 * rw), i + (2 * rw) - 1];
+        up: {
+            test: function (tiles, i, ch, rw) {
+                return (((i % rw) > 0) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + (2 * rw)].type) && (tiles[i].type === tiles[i + (2 * rw) - 1].type));
+            },
+            pattern: function (i, rw) {
+                return [i, i + rw, i + (2 * rw), i + (2 * rw) - 1];
+            }
         },
         
-        right: function (params) {
-            var tiles = params.tileList;
-            var i = params.ii;
-            var ch = params.colHeight;
-            var rw = params.rowWidth;
-            
-            if (((i % rw) < (rw - 2)) && (i < ((ch - 1) * rw)) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + 1 + rw].type) && (tiles[i].type === tiles[i + 2 + rw].type)) {
-                return true;
-            } else { return false; }
-        },
-        rTiles: function (params) {
-            var i = params.ii;
-            var rw = params.rowWidth;
-            return [i, i + rw, i + 1 + rw, i + 2 + rw];
+        right: {
+            test: function (tiles, i, ch, rw) {
+                return (((i % rw) < (rw - 2)) && (i < ((ch - 1) * rw)) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + 1 + rw].type) && (tiles[i].type === tiles[i + 2 + rw].type));
+            },
+            pattern: function (i, rw) {
+                return [i, i + rw, i + 1 + rw, i + 2 + rw];
+            }
         },
         
-        down: function (params) {
-            var tiles = params.tileList;
-            var i = params.ii;
-            var ch = params.colHeight;
-            var rw = params.rowWidth;
-            
-            if (((i % rw) < (rw - 1)) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + (2 * rw)].type)) {
-                return true;
-            } else { return false; }
-        },
-        dTiles: function (params) {
-            var i = params.ii;
-            var rw = params.rowWidth;
-            return [i, i + 1, i + rw, i + (2 * rw)];
+        down: {
+            test: function (tiles, i, ch, rw) {
+                return (((i % rw) < (rw - 1)) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + (2 * rw)].type));
+            },
+            pattern: function (i, rw) {
+                return [i, i + 1, i + rw, i + (2 * rw)];
+            }
         }
     };
     
     
     var rgun = {
         //barrel pointing left, etc.
-        left: function (params) {
-            var tiles = params.tileList;
-            var i = params.ii;
-            var ch = params.colHeight;
-            var rw = params.rowWidth;
-            
-            if (((i % rw) < (rw - 2)) && (i >= rw) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 2].type) && (tiles[i].type === tiles[i + 2 - rw].type)) {
-                return true;
-            } else { return false; }
-        },
-        lTiles: function (params) {
-            var i = params.ii;
-            var rw = params.rowWidth;
-            return [i, i + 1, i + 2, i + 2 - rw];
+        left: {
+            test: function (tiles, i, ch, rw) {
+                return (((i % rw) < (rw - 2)) && (i >= rw) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 2].type) && (tiles[i].type === tiles[i + 2 - rw].type));
+            },
+            pattern: function (i, rw) {
+                return [i, i + 1, i + 2, i + 2 - rw];
+            }
         },
         
-        up: function (params) {
-            var tiles = params.tileList;
-            var i = params.ii;
-            var ch = params.colHeight;
-            var rw = params.rowWidth;
-            
-            if (((i % rw) < (rw - 1)) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + (2 * rw)].type) && (tiles[i].type === tiles[i + (2 * rw) + 1].type)) {
-                return true;
-            } else { return false; }
-        },
-        uTiles: function (params) {
-            var i = params.ii;
-            var rw = params.rowWidth;
-            return [i, i + rw, i + (2 * rw), i + (2 * rw) + 1];
+        up: {
+            test: function (tiles, i, ch, rw) {
+                return (((i % rw) < (rw - 1)) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + (2 * rw)].type) && (tiles[i].type === tiles[i + (2 * rw) + 1].type));
+            },
+            pattern: function (i, rw) {
+                return [i, i + rw, i + (2 * rw), i + (2 * rw) + 1];
+            }
         },
         
-        right: function (params) {
-            var tiles = params.tileList;
-            var i = params.ii;
-            var ch = params.colHeight;
-            var rw = params.rowWidth;
-            
-            if (((i % rw) < (rw - 2)) && (i < ((ch - 1) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 2].type) && (tiles[i].type === tiles[i + rw].type)) {
-                return true;
-            } else { return false; }
-        },
-        rTiles: function (params) {
-            var i = params.ii;
-            var rw = params.rowWidth;
-            return [i, i + 1, i + 2, i + rw];
+        right: {
+            test: function (tiles, i, ch, rw) {
+                return (((i % rw) < (rw - 2)) && (i < ((ch - 1) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 2].type) && (tiles[i].type === tiles[i + rw].type));
+            },
+            pattern: function (i, rw) {
+                return [i, i + 1, i + 2, i + rw];
+            }
         },
         
-        down: function (params) {
-            var tiles = params.tileList;
-            var i = params.ii;
-            var ch = params.colHeight;
-            var rw = params.rowWidth;
-            
-            if (((i % rw) < (rw - 1)) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 1 + rw].type) && (tiles[i].type === tiles[i + 1 + (2 * rw)].type)) {
-                return true;
-            } else { return false; }
-        },
-        dTiles: function (params) {
-            var i = params.ii;
-            var rw = params.rowWidth;
-            return [i, i + 1, i + 1 + rw, i + 1 + (2 * rw)];
+        down: {
+            test: function (tiles, i, ch, rw) {
+                return (((i % rw) < (rw - 1)) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 1 + rw].type) && (tiles[i].type === tiles[i + 1 + (2 * rw)].type));
+            },
+            pattern: function (i, rw) {
+                return [i, i + 1, i + 1 + rw, i + 1 + (2 * rw)];
+            }
         }
     };
     
     
     var tblock = {
         //stem pointing left, etc.
-        left: function (params) {
-            var tiles = params.tileList;
-            var i = params.ii;
-            var ch = params.colHeight;
-            var rw = params.rowWidth;
-            
-            if (((i % rw) > 0) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i - 1 + rw].type) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + (2 * rw)].type)) {
-                return true;
-            } else { return false; }
-        },
-        lTiles: function (params) {
-            var i = params.ii;
-            var rw = params.rowWidth;
-            return [i, i - 1 + rw, i + rw, i + (2 * rw)];
+        left: {
+            test: function (tiles, i, ch, rw) {
+                return (((i % rw) > 0) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i - 1 + rw].type) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + (2 * rw)].type));
+            },
+            pattern: function (i, rw) {
+                return [i, i - 1 + rw, i + rw, i + (2 * rw)];
+            }
         },
         
-        up: function (params) {
-            var tiles = params.tileList;
-            var i = params.ii;
-            var ch = params.colHeight;
-            var rw = params.rowWidth;
-            
-            if (((i % rw) < (rw - 2)) && (i >= rw) && (tiles[i].type === tiles[i + 1 - rw].type) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 2].type)) {
-                return true;
-            } else { return false; }
-        },
-        uTiles: function (params) {
-            var i = params.ii;
-            var rw = params.rowWidth;
-            return [i, i + 1 - rw, i + 1, i + 2];
+        up: {
+            test: function (tiles, i, ch, rw) {
+                return (((i % rw) < (rw - 2)) && (i >= rw) && (tiles[i].type === tiles[i + 1 - rw].type) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 2].type));
+            },
+            pattern: function (i, rw) {
+                return [i, i + 1 - rw, i + 1, i + 2];
+            }
         },
         
-        right: function (params) {
-            var tiles = params.tileList;
-            var i = params.ii;
-            var ch = params.colHeight;
-            var rw = params.rowWidth;
-            
-            if (((i % rw) < (rw - 1)) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + 1 + rw].type) && (tiles[i].type === tiles[i + (2 * rw)].type)) {
-                return true;
-            } else { return false; }
-        },
-        rTiles: function (params) {
-            var i = params.ii;
-            var rw = params.rowWidth;
-            return [i, i + rw, i + 1 + rw, i + (2 * rw)];
+        right: {
+            test: function (tiles, i, ch, rw) {
+                return (((i % rw) < (rw - 1)) && (i < ((ch - 2) * rw)) && (tiles[i].type === tiles[i + rw].type) && (tiles[i].type === tiles[i + 1 + rw].type) && (tiles[i].type === tiles[i + (2 * rw)].type));
+            },
+            pattern: function (i, rw) {
+                return [i, i + rw, i + 1 + rw, i + (2 * rw)];
+            }
         },
         
-        down: function (params) {
+        down: {
+            test: function (tiles, i, ch, rw) {
+                return (((i % rw) < (rw - 2)) && (i < ((ch - 1) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 1 + rw].type) && (tiles[i].type === tiles[i + 2].type));
+            },
+            pattern: function (i, rw) {
+                return [i, i + 1, i + 1 + rw, i + 2];
+            }
+        }
+    };
+    
+    var allTheShapes = [
+        square,
+        straight.horizontal,
+        straight.vertical,
+        zblock.horizontal,
+        zblock.vertical,
+        sblock.horizontal,
+        sblock.vertical,
+        lgun.down,
+        lgun.left,
+        lgun.right,
+        lgun.up,
+        rgun.down,
+        rgun.left,
+        rgun.right,
+        rgun.up,
+        tblock.down,
+        tblock.left,
+        tblock.right,
+        tblock.up
+    ];
+    
+    
+    var shapeCheck = {
+        test: function (params, orientedShape) {
             var tiles = params.tileList;
             var i = params.ii;
             var ch = params.colHeight;
             var rw = params.rowWidth;
             
-            if (((i % rw) < (rw - 2)) && (i < ((ch - 1) * rw)) && (tiles[i].type === tiles[i + 1].type) && (tiles[i].type === tiles[i + 1 + rw].type) && (tiles[i].type === tiles[i + 2].type)) {
+            if (orientedShape.test(tiles, i, ch, rw)) {
                 return true;
             } else { return false; }
         },
-        dTiles: function (params) {
+        
+        returnValues: function (params, orientedShape) {
             var i = params.ii;
             var rw = params.rowWidth;
-            return [i, i + 1, i + 1 + rw, i + 2];
+            return orientedShape.pattern(i, rw);
         }
     };
     
@@ -385,68 +293,18 @@ var rw = params.rowWidth;
     // tiles, if so which ones, and their type.
     Shapes.checkALLtheShapes = function (params) {
         var returnObj = new ReturnObject();
-        var i = params.ii;
-        var testTile = params.tileList[i];
+        var i;
+        var testTile = params.tileList[params.ii];
         
         if (testTile.type === 0) {
             return returnObj;
-        } else if (square.square(params)) {
-            returnObj.tilesToRemove.indices = square.sTiles(params);
-            returnObj.flagForRemoval(testTile.type);
-        } else if (straight.horizontal(params)) {
-            returnObj.tilesToRemove.indices = straight.hTiles(params);
-            returnObj.flagForRemoval(testTile.type);
-        } else if (straight.vertical(params)) {
-            returnObj.tilesToRemove.indices = straight.vTiles(params);
-            returnObj.flagForRemoval(testTile.type);
-        } else if (zblock.horizontal(params)) {
-            returnObj.tilesToRemove.indices = zblock.hTiles(params);
-            returnObj.flagForRemoval(testTile.type);
-        } else if (zblock.vertical(params)) {
-            returnObj.tilesToRemove.indices = zblock.vTiles(params);
-            returnObj.flagForRemoval(testTile.type);
-        } else if (sblock.horizontal(params)) {
-            returnObj.tilesToRemove.indices = sblock.hTiles(params);
-            returnObj.flagForRemoval(testTile.type);
-        } else if (sblock.vertical(params)) {
-            returnObj.tilesToRemove.indices = sblock.vTiles(params);
-            returnObj.flagForRemoval(testTile.type);
-        } else if (lgun.left(params)) {
-            returnObj.tilesToRemove.indices = lgun.lTiles(params);
-            returnObj.flagForRemoval(testTile.type);
-        } else if (lgun.up(params)) {
-            returnObj.tilesToRemove.indices = lgun.uTiles(params);
-            returnObj.flagForRemoval(testTile.type);
-        } else if (lgun.right(params)) {
-            returnObj.tilesToRemove.indices = lgun.rTiles(params);
-            returnObj.flagForRemoval(testTile.type);
-        } else if (lgun.down(params)) {
-            returnObj.tilesToRemove.indices = lgun.dTiles(params);
-            returnObj.flagForRemoval(testTile.type);
-        } else if (rgun.left(params)) {
-            returnObj.tilesToRemove.indices = rgun.lTiles(params);
-            returnObj.flagForRemoval(testTile.type);
-        } else if (rgun.up(params)) {
-            returnObj.tilesToRemove.indices = rgun.uTiles(params);
-            returnObj.flagForRemoval(testTile.type);
-        } else if (rgun.right(params)) {
-            returnObj.tilesToRemove.indices = rgun.rTiles(params);
-            returnObj.flagForRemoval(testTile.type);
-        } else if (rgun.down(params)) {
-            returnObj.tilesToRemove.indices = rgun.dTiles(params);
-            returnObj.flagForRemoval(testTile.type);
-        } else if (tblock.left(params)) {
-            returnObj.tilesToRemove.indices = tblock.lTiles(params);
-            returnObj.flagForRemoval(testTile.type);
-        } else if (tblock.up(params)) {
-            returnObj.tilesToRemove.indices = tblock.uTiles(params);
-            returnObj.flagForRemoval(testTile.type);
-        } else if (tblock.right(params)) {
-            returnObj.tilesToRemove.indices = tblock.rTiles(params);
-            returnObj.flagForRemoval(testTile.type);
-        } else if (tblock.down(params)) {
-            returnObj.tilesToRemove.indices = tblock.dTiles(params);
-            returnObj.flagForRemoval(testTile.type);
+        } else {
+            for (i = 0; i < allTheShapes.length; i++) {
+                if(shapeCheck.test(params, allTheShapes[i])) {
+                    returnObj.tilesToRemove.indices = shapeCheck.returnValues(params, allTheShapes[i]);
+                    returnObj.flagForRemoval(testTile.type);
+                }
+            }
         }
         
         return returnObj;
