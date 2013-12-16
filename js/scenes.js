@@ -382,19 +382,26 @@
     // of points to add and an array of tiles to be removed from
     // the board
     Board.prototype.checkState = function (currentTarget) {
-        var tilesToRemove, pts;
+        var tilesToRemove, pts, temp;
         if (this.tilePlaced) {
             tilesToRemove = this.checkForShapes(currentTarget);
             pts = this.calculatePoints(tilesToRemove);
+            if (pts > 0) {
+                temp = true;
+            } else {
+                temp = false;
+            }
             this.tilePlaced = false;
             return {
                 points: pts,
-                tilesToRemove: tilesToRemove.indices
+                tilesToRemove: tilesToRemove.indices,
+                shapeFound: temp
             };
         } else {
             return {
                 points: 0,
-                tilesToRemove: []
+                tilesToRemove: [],
+                shapeFound: false
             };
         }
     };
@@ -507,10 +514,11 @@
                 }
             }
             boardState = this.board.checkState(this.targetDisplay.getCurrentTarget());
-            if (boardState.tilesToRemove.length > 0) {
+            while (boardState.shapeFound) {
                 this.board.removeTiles(boardState.tilesToRemove);
                 this.scoreboard.update(boardState.points);
                 this.targetDisplay.generateNextTarget();
+                boardState = this.board.checkState(this.targetDisplay.getCurrentTarget());
             }
             if (this.targetDisplay.targetUpdated) {
                 this.targetDisplay.update();
