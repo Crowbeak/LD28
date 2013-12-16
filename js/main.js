@@ -33,6 +33,8 @@ $(document).ready(function () {
     "use strict";
     var game = new Core(Constants.stageWidth, Constants.stageHeight);
     game.preload('img/crowbeak.png',
+                 'img/centerui1.png',
+                 'img/centerui2.png',
                  
                  'img/tiles/basetile.png',
                  'img/tiles/red.png',
@@ -58,6 +60,10 @@ $(document).ready(function () {
         console.info("Game loaded.");
         var images = {
             logo: game.assets['img/crowbeak.png'],
+            centerui: {
+                one: game.assets['img/centerui1.png'],
+                two: game.assets['img/centerui2.png']
+            },
             tiles: {
                 base: game.assets['img/tiles/basetile.png'],
                 one: game.assets['img/tiles/red.png'],

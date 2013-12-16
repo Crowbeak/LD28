@@ -19,20 +19,22 @@
 enchant();
 
 var Constants = {
-    boardx: 100,
-    boardy: 50,
+    boardx: 200,
+    boardy: 100,
     cdisplayColor: "#333333",
-    cdisplayWidth: 180,
-    cdisplayHeight: 90,
+    cdisplayWidth: 360,
+    cdisplayHeight: 180,
     fourTetrominoesStart: 0,
     fourTetrominoesNumber: 7,
     fps: 20,
     gamebgc: "lightgray",
     numberOfChoices: 2,
-    padding: 2,
-    stageHeight: 600,
-    stageWidth: 800,
-    tilesize: 100,
+    opacityMinimum: 0.15,
+    opacityROC: 0.05,
+    padding: 4,
+    stageHeight: 1200,
+    stageWidth: 1600,
+    tilesize: 200,
     
     bindKeys: function (game) {
         // Bind spacebar to 'a' and allow WASD input

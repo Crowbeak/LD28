@@ -47,6 +47,7 @@ var rw = params.rowWidth;
         },
         img: "square"
     };
+    square.only.nonOrientedShape = square;
     
     var straight = {
         horizontal: {
@@ -68,6 +69,8 @@ var rw = params.rowWidth;
         },
         img: "straight"
     };
+    straight.horizontal.nonOrientedShape = straight;
+    straight.vertical.nonOrientedShape = straight;
     
     
     var zblock = {
@@ -91,6 +94,8 @@ var rw = params.rowWidth;
         },
         img: "zblock"
     };
+    zblock.horizontal.nonOrientedShape = zblock;
+    zblock.vertical.nonOrientedShape = zblock;
     
     
     var sblock = {
@@ -114,6 +119,8 @@ var rw = params.rowWidth;
         },
         img: "sblock"
     };
+    sblock.horizontal.nonOrientedShape = sblock;
+    sblock.vertical.nonOrientedShape = sblock;
     
     
     var lgun = {
@@ -155,6 +162,10 @@ var rw = params.rowWidth;
         },
         img: "lgun"
     };
+    lgun.up.nonOrientedShape = lgun;
+    lgun.down.nonOrientedShape = lgun;
+    lgun.left.nonOrientedShape = lgun;
+    lgun.right.nonOrientedShape = lgun;
     
     
     var rgun = {
@@ -196,6 +207,10 @@ var rw = params.rowWidth;
         },
         img: "rgun"
     };
+    rgun.up.nonOrientedShape = rgun;
+    rgun.down.nonOrientedShape = rgun;
+    rgun.left.nonOrientedShape = rgun;
+    rgun.right.nonOrientedShape = rgun;
     
     
     var tblock = {
@@ -237,6 +252,10 @@ var rw = params.rowWidth;
         },
         img: "tblock"
     };
+    tblock.up.nonOrientedShape = tblock;
+    tblock.down.nonOrientedShape = tblock;
+    tblock.left.nonOrientedShape = tblock;
+    tblock.right.nonOrientedShape = tblock;
     
     Shapes.shapeObjectList = [
         square,
@@ -304,6 +323,13 @@ var rw = params.rowWidth;
         this.tilesToRemove.tileType = type;
     };
     
+    ReturnObject.prototype.setReturnData = function (params, orientedShape, type) {
+        this.tilesToRemove.indices = shapeCheck.returnValues(params, orientedShape);
+        this.flagForRemoval(type);
+        
+    };
+    
+    
     Shapes.noTilesToRemove = function () {
         var temp = new ReturnObject();
         return temp.tilesToRemove;
@@ -311,7 +337,7 @@ var rw = params.rowWidth;
     
     // returns object with three fields indicating whether or not to remove
     // tiles, if so which ones, and their type.
-    Shapes.checkALLtheShapes = function (params) {
+    Shapes.checkALLtheShapes = function (params, currentTarget) {
         var returnObj = new ReturnObject();
         var i;
         var testTile = params.tileList[params.ii];
@@ -320,9 +346,8 @@ var rw = params.rowWidth;
             return returnObj;
         } else {
             for (i = 0; i < allTheOrientations.length; i++) {
-                if(shapeCheck.test(params, allTheOrientations[i])) {
-                    returnObj.tilesToRemove.indices = shapeCheck.returnValues(params, allTheOrientations[i]);
-                    returnObj.flagForRemoval(testTile.type);
+                if ((allTheOrientations[i].nonOrientedShape === currentTarget.shapeObject) && (shapeCheck.test(params, allTheOrientations[i]))) {
+                    returnObj.setReturnData(params, allTheOrientations[i], testTile.type);
                 }
             }
         }

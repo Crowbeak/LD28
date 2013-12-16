@@ -30,10 +30,10 @@
         initialize: function (text, textAlign) {
             Label.call(this, text);
             
-            this.height = 20;
-            this.width = 180;
+            this.height = 40;
+            this.width = Constants.cdisplayWidth;
             this.color = Constants.cdisplayColor;
-            this.font = "20px arial,sans-serif";
+            this.font = "40px arial,sans-serif";
             if (textAlign === "left") {
                 this.x = Constants.padding;
             } else if (textAlign === "right") {
@@ -120,7 +120,7 @@
     
     
     var NextPiecesDisplay = Class.create(Group, {
-        initialize: function (tileimages, clickSound) {
+        initialize: function (images, clickSound) {
             var i, temp;
             
             Group.call(this);
@@ -133,16 +133,46 @@
             
             this.tiles = [];
             for (i = 0; i < Constants.numberOfChoices; i++) {
-                temp = new Tile(tileimages, Constants.tilesize);
-                temp.x = this.bg.x + (Constants.padding * (i + 1)) + (i * 100);
+                temp = new Tile(images.tiles, Constants.tilesize);
+                temp.x = this.bg.x + (Constants.padding * (i + 1)) + (i * Constants.tilesize);
                 temp.y = this.bg.y + Constants.padding;
                 this.tiles.push(temp);
             }
+            
+            this.clickHereBG = new Sprite(432, 218);
+            this.clickHereBG.x = (Constants.stageWidth / 2) - (this.clickHereBG.width / 2);
+            this.clickHereBG.y = Constants.stageHeight - this.clickHereBG.height;
+            this.clickHereBG.image = images.centerui.one;
+            
+            this.clickHere = new Sprite(432, 218);
+            this.clickHere.x = (Constants.stageWidth / 2) - (this.clickHere.width / 2);
+            this.clickHere.y = Constants.stageHeight - this.clickHere.height;
+            this.clickHere.image = images.centerui.two;
+            this.clickHere.opacityDecreasing = true;
+            this.clickHere.addEventListener(Event.ENTER_FRAME, function () {
+                if (this.opacityDecreasing) {
+                    if (this.opacity > Constants.opacityMinimum) {
+                        this.opacity -= Constants.opacityROC;
+                    } else {
+                        this.opacityDecreasing = false;
+                        this.opacity += Constants.opacityROC;
+                    }
+                } else {
+                    if (this.opacity < 1) {
+                        this.opacity += Constants.opacityROC;
+                    } else {
+                        this.opacityDecreasing = true;
+                        this.opacity -= Constants.opacityROC;
+                    }
+                }
+            });
         }
     });
     
     NextPiecesDisplay.prototype.addGraphicsToScene = function (scene) {
         var i;
+        scene.addChild(this.clickHereBG);
+        scene.addChild(this.clickHere);
         scene.addChild(this.bg);
         for (i = 0; i < this.tiles.length; i++) {
             scene.addChild(this.tiles[i]);
@@ -173,6 +203,16 @@
         console.info("active tile " + num);
     };
     
+    NextPiecesDisplay.prototype.markSelectable = function () {
+        this.clickHereBG.visible = true;
+        this.clickHere.visible = true;
+    };
+    
+    NextPiecesDisplay.prototype.markUnselectable = function () {
+        this.clickHereBG.visible = false;
+        this.clickHere.visible = false;
+    };
+    
     
     var Scoreboard = Class.create(Group, {
         initialize: function () {
@@ -181,9 +221,10 @@
             this.score = 0;
             
             this.scoreDisplay = new UIBackground("left");
-            this.scoreDisplay.font = "80px arial,sans-serif";
+            this.scoreDisplay.font = "170px arial,sans-serif";
             this.scoreDisplay.textAlign = "center";
             this.scoreDisplay.color = "white";
+            this.scoreDisplay.text = 0;
             
             this.title = new UITitle("SCORE", "left");
         }
@@ -257,6 +298,11 @@
         this.targetUpdated = false;
     };
     
+    TargetDisplay.prototype.getCurrentTarget = function () {
+        var temp = this.possibleTargets[this.target];
+        return temp;
+    };
+    
     
     var Board = Class.create(Group, {
         initialize: function (tileimages, options, sounds) {
@@ -280,11 +326,46 @@
                     this.tiles.push(temp);
                 }
             }
+            
+            this.clickHere = new Label();
+            this.clickHere.width = 1240;
+            this.clickHere.height = 832;
+            this.clickHere.backgroundColor = "#180a94";
+            this.clickHere.x = this.tiles[0].x - 10;
+            this.clickHere.y = this.tiles[0].y - 10;
+            this.clickHere.opacityDecreasing = true;
+            this.clickHere.addEventListener(Event.ENTER_FRAME, function () {
+                if (this.opacityDecreasing) {
+                    if (this.opacity > Constants.opacityMinimum) {
+                        this.opacity -= Constants.opacityROC;
+                    } else {
+                        this.opacityDecreasing = false;
+                        this.opacity += Constants.opacityROC;
+                    }
+                } else {
+                    if (this.opacity < 1) {
+                        this.opacity += Constants.opacityROC;
+                    } else {
+                        this.opacityDecreasing = true;
+                        this.opacity -= Constants.opacityROC;
+                    }
+                }
+            });
+            this.clickHere.visible = false;
+            
+            this.clickHereEyeSaver = new Label();
+            this.clickHereEyeSaver.width = 1220;
+            this.clickHereEyeSaver.height = 812;
+            this.clickHereEyeSaver.backgroundColor = Constants.gamebgc;
+            this.clickHereEyeSaver.x = this.tiles[0].x;
+            this.clickHereEyeSaver.y = this.tiles[0].y;
         }
     });
     
     Board.prototype.addGraphicsToScene = function (scene) {
         var i;
+        scene.addChild(this.clickHere);
+        scene.addChild(this.clickHereEyeSaver);
         for (i = 0; i < this.tiles.length; i++) {
             scene.addChild(this.tiles[i]);
         }
@@ -294,15 +375,16 @@
         this.tiles[i].change(newType);
         this.sounds.shoonk.play();
         this.tilePlaced = true;
+        this.markUnselectable();
     };
     
     // returns object with two fields representing the number
     // of points to add and an array of tiles to be removed from
     // the board
-    Board.prototype.checkState = function () {
+    Board.prototype.checkState = function (currentTarget) {
         var tilesToRemove, pts;
         if (this.tilePlaced) {
-            tilesToRemove = this.checkForShapes();
+            tilesToRemove = this.checkForShapes(currentTarget);
             pts = this.calculatePoints(tilesToRemove);
             this.tilePlaced = false;
             return {
@@ -318,13 +400,13 @@
     };
     
     //returns array of tile indices to be removed from the board
-    Board.prototype.checkForShapes = function () {
+    Board.prototype.checkForShapes = function (currentTarget) {
         var i, shapeData;
         for (i = 0; i < this.tiles.length; i++) {
             shapeData = Shapes.checkALLtheShapes({ tileList: this.tiles,
                                                    ii: i,
                                                    colHeight: this.rows,
-                                                   rowWidth: this.cols });
+                                                   rowWidth: this.cols }, currentTarget);
             if (shapeData.needToRemove) {
                 return shapeData.tilesToRemove;
             }
@@ -337,6 +419,7 @@
         for (i = 0; i < tilesToRemove.length; i++) {
             this.tiles[tilesToRemove[i]].reset();
         }
+        this.sounds.ting.play();
     };
     
     //returns number of points to add to score
@@ -352,6 +435,15 @@
         } else { return 0; }
     };
     
+    Board.prototype.markSelectable = function () {
+        this.clickHere.visible = true;
+    };
+    
+    Board.prototype.markUnselectable = function () {
+        this.clickHere.visible = false;
+    };
+    
+    
     /**
      * The scene where all the gaming happens.
      */
@@ -365,7 +457,7 @@
             this.board = new Board(images.tiles, options.boardsize, sounds);
             this.scoreboard = new Scoreboard();
             this.targetDisplay = new TargetDisplay(images.shapes, Shapes.shapeObjectList, options.targets);
-            this.nextPieces = new NextPiecesDisplay(images.tiles, sounds.click);
+            this.nextPieces = new NextPiecesDisplay(images, sounds.click);
             this.nextPieces.generateTiles();
             
             this.board.addGraphicsToScene(this);
@@ -400,6 +492,7 @@
                     if ((this.clickpoint.intersect(this.board.tiles[i])) && (this.board.tiles[i].type === 0)) {
                         this.board.placeTile(i, this.nextPieces.newType);
                         this.nextPieces.generateTiles();
+                        this.nextPieces.markSelectable();
                         break;
                     }
                 }
@@ -407,11 +500,13 @@
                 for (i = 0; i < this.nextPieces.tiles.length; i++) {
                     if (this.clickpoint.intersect(this.nextPieces.tiles[i])) {
                         this.nextPieces.selectTile(i);
+                        this.nextPieces.markUnselectable();
+                        this.board.markSelectable();
                         break;
                     }
                 }
             }
-            boardState = this.board.checkState();
+            boardState = this.board.checkState(this.targetDisplay.getCurrentTarget());
             if (boardState.tilesToRemove.length > 0) {
                 this.board.removeTiles(boardState.tilesToRemove);
                 this.scoreboard.update(boardState.points);
