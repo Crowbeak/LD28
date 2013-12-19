@@ -70,6 +70,92 @@
         }
     });
     
+    
+    var UIClickHere = Class.create(Group, {
+        initialize: function (uiElement, images, uiElementType) {
+            Group.call(this);
+            
+            switch (uiElementType) {
+            case 'b':
+                this.chBack = new Label();
+                this.chBack.width = (uiElement.cols * Constants.tilesize) + (Constants.padding * (uiElement.cols - 1)) + (Constants.interactiveBorderWidth * 2);
+                this.chBack.height = (uiElement.rows * Constants.tilesize) + (Constants.padding * (uiElement.rows - 1)) + (Constants.interactiveBorderWidth * 2);
+                this.chBack.backgroundColor = "#180a94";
+                this.chBack.x = uiElement.tiles[0].x - Constants.interactiveBorderWidth;
+                this.chBack.y = uiElement.tiles[0].y - Constants.interactiveBorderWidth;
+                
+                
+                this.chBack.opacityDecreasing = true;
+                this.chBack.addEventListener(Event.ENTER_FRAME, function () {
+                    if (this.opacityDecreasing) {
+                        if (this.opacity > Constants.opacityMinimum) {
+                            this.opacity -= Constants.opacityROC;
+                        } else {
+                            this.opacityDecreasing = false;
+                            this.opacity += Constants.opacityROC;
+                        }
+                    } else {
+                        if (this.opacity < 1) {
+                            this.opacity += Constants.opacityROC;
+                        } else {
+                            this.opacityDecreasing = true;
+                            this.opacity -= Constants.opacityROC;
+                        }
+                    }
+                });
+                this.chBack.visible = false;
+                
+                this.chFront = new Label();
+                this.chFront.width = (uiElement.cols * Constants.tilesize) + (Constants.padding * (uiElement.cols - 1));
+                this.chFront.height = (uiElement.rows * Constants.tilesize) + (Constants.padding + (uiElement.rows + 1));
+                this.chFront.backgroundColor = Constants.gamebgc;
+                this.chFront.x = uiElement.tiles[0].x;
+                this.chFront.y = uiElement.tiles[0].y;
+                break;
+            case 'npd':
+                this.chBack = new Sprite(432, 218);
+                this.chBack.x = uiElement.bg.x - Constants.interactiveBorderWidth;
+                this.chBack.y = uiElement.bg.y - Constants.interactiveBorderWidth;
+                this.chBack.image = images.centerui.one;
+                
+                this.chFront = new Sprite(432, 218);
+                this.chFront.x = uiElement.bg.x - Constants.interactiveBorderWidth;
+                this.chFront.y = uiElement.bg.y - Constants.interactiveBorderWidth;
+                this.chFront.image = images.centerui.two;
+                this.chFront.opacityDecreasing = true;
+                this.chFront.addEventListener(Event.ENTER_FRAME, function () {
+                    if (this.opacityDecreasing) {
+                        if (this.opacity > Constants.opacityMinimum) {
+                            this.opacity -= Constants.opacityROC;
+                        } else {
+                            this.opacityDecreasing = false;
+                            this.opacity += Constants.opacityROC;
+                        }
+                    } else {
+                        if (this.opacity < 1) {
+                            this.opacity += Constants.opacityROC;
+                        } else {
+                            this.opacityDecreasing = true;
+                            this.opacity -= Constants.opacityROC;
+                        }
+                    }
+                });
+                break;
+            }
+        }
+    });
+    
+    UIClickHere.prototype.makeVisible = function () {
+        this.chBack.visible = true;
+        this.chFront.visible = true;
+    };
+    
+    UIClickHere.prototype.makeInvisible = function () {
+        this.chBack.visible = false;
+        this.chFront.visible = false;
+    };
+    
+    
     /**
      * Takes block of all tile images.
      */
@@ -121,9 +207,8 @@
     
     var NextPiecesDisplay = Class.create(Group, {
         initialize: function (images, clickSound) {
-            var i, temp;
-            
             Group.call(this);
+            var i, temp;
             
             this.clickSound = clickSound;
             this.tileActive = false;
@@ -139,40 +224,14 @@
                 this.tiles.push(temp);
             }
             
-            this.clickHereBG = new Sprite(432, 218);
-            this.clickHereBG.x = (Constants.stageWidth / 2) - (this.clickHereBG.width / 2);
-            this.clickHereBG.y = Constants.stageHeight - this.clickHereBG.height;
-            this.clickHereBG.image = images.centerui.one;
-            
-            this.clickHere = new Sprite(432, 218);
-            this.clickHere.x = (Constants.stageWidth / 2) - (this.clickHere.width / 2);
-            this.clickHere.y = Constants.stageHeight - this.clickHere.height;
-            this.clickHere.image = images.centerui.two;
-            this.clickHere.opacityDecreasing = true;
-            this.clickHere.addEventListener(Event.ENTER_FRAME, function () {
-                if (this.opacityDecreasing) {
-                    if (this.opacity > Constants.opacityMinimum) {
-                        this.opacity -= Constants.opacityROC;
-                    } else {
-                        this.opacityDecreasing = false;
-                        this.opacity += Constants.opacityROC;
-                    }
-                } else {
-                    if (this.opacity < 1) {
-                        this.opacity += Constants.opacityROC;
-                    } else {
-                        this.opacityDecreasing = true;
-                        this.opacity -= Constants.opacityROC;
-                    }
-                }
-            });
+            this.clickHere = new UIClickHere(this, images, 'npd');
         }
     });
     
     NextPiecesDisplay.prototype.addGraphicsToScene = function (scene) {
         var i;
-        scene.addChild(this.clickHereBG);
-        scene.addChild(this.clickHere);
+        scene.addChild(this.clickHere.chBack);
+        scene.addChild(this.clickHere.chFront);
         scene.addChild(this.bg);
         for (i = 0; i < this.tiles.length; i++) {
             scene.addChild(this.tiles[i]);
@@ -204,13 +263,11 @@
     };
     
     NextPiecesDisplay.prototype.markSelectable = function () {
-        this.clickHereBG.visible = true;
-        this.clickHere.visible = true;
+        this.clickHere.makeVisible();
     };
     
     NextPiecesDisplay.prototype.markUnselectable = function () {
-        this.clickHereBG.visible = false;
-        this.clickHere.visible = false;
+        this.clickHere.makeInvisible();
     };
     
     
@@ -327,45 +384,14 @@
                 }
             }
             
-            this.clickHere = new Label();
-            this.clickHere.width = 1240;
-            this.clickHere.height = 832;
-            this.clickHere.backgroundColor = "#180a94";
-            this.clickHere.x = this.tiles[0].x - 10;
-            this.clickHere.y = this.tiles[0].y - 10;
-            this.clickHere.opacityDecreasing = true;
-            this.clickHere.addEventListener(Event.ENTER_FRAME, function () {
-                if (this.opacityDecreasing) {
-                    if (this.opacity > Constants.opacityMinimum) {
-                        this.opacity -= Constants.opacityROC;
-                    } else {
-                        this.opacityDecreasing = false;
-                        this.opacity += Constants.opacityROC;
-                    }
-                } else {
-                    if (this.opacity < 1) {
-                        this.opacity += Constants.opacityROC;
-                    } else {
-                        this.opacityDecreasing = true;
-                        this.opacity -= Constants.opacityROC;
-                    }
-                }
-            });
-            this.clickHere.visible = false;
-            
-            this.clickHereEyeSaver = new Label();
-            this.clickHereEyeSaver.width = 1220;
-            this.clickHereEyeSaver.height = 812;
-            this.clickHereEyeSaver.backgroundColor = Constants.gamebgc;
-            this.clickHereEyeSaver.x = this.tiles[0].x;
-            this.clickHereEyeSaver.y = this.tiles[0].y;
+            this.clickHere = new UIClickHere(this, {}, 'b');
         }
     });
     
     Board.prototype.addGraphicsToScene = function (scene) {
         var i;
-        scene.addChild(this.clickHere);
-        scene.addChild(this.clickHereEyeSaver);
+        scene.addChild(this.clickHere.chBack);
+        scene.addChild(this.clickHere.chFront);
         for (i = 0; i < this.tiles.length; i++) {
             scene.addChild(this.tiles[i]);
         }
@@ -443,11 +469,11 @@
     };
     
     Board.prototype.markSelectable = function () {
-        this.clickHere.visible = true;
+        this.clickHere.makeVisible();
     };
     
     Board.prototype.markUnselectable = function () {
-        this.clickHere.visible = false;
+        this.clickHere.makeInvisible();
     };
     
     

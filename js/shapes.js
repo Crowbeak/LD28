@@ -21,21 +21,21 @@
                 Sprite,
                 Surface, */
 
-/*
-var tiles = params.tileList;
-var i = params.ii;
-var ch = params.colHeight;
-var rw = params.rowWidth;
-*/
 
 (function (Shapes) {
     "use strict";
     
+    Shapes.shapeObjectList = [];
+    var allTheOrientations = [];
+    
+    
+    // ----------------------------------------------------------------
+    // BEGIN SHAPE DEFINITIONS
+    // ----------------------------------------------------------------
     // All shape objects assume 4+ rows and 6+ columns.
     // Each shape has a boolean function for each possible orientation.
     // Each shape has a function which returns an array of tile indices.
     // New shapes must be manually added to the allTheOrientations array.
-    
     var square = {
         only: {
             test: function (tiles, i, ch, rw) {
@@ -48,6 +48,8 @@ var rw = params.rowWidth;
         img: "square"
     };
     square.only.nonOrientedShape = square;
+    allTheOrientations.push(square.only);
+    Shapes.shapeObjectList.push(square);
     
     var straight = {
         horizontal: {
@@ -71,6 +73,9 @@ var rw = params.rowWidth;
     };
     straight.horizontal.nonOrientedShape = straight;
     straight.vertical.nonOrientedShape = straight;
+    allTheOrientations.push(straight.horizontal);
+    allTheOrientations.push(straight.vertical);
+    Shapes.shapeObjectList.push(straight);
     
     
     var zblock = {
@@ -96,6 +101,9 @@ var rw = params.rowWidth;
     };
     zblock.horizontal.nonOrientedShape = zblock;
     zblock.vertical.nonOrientedShape = zblock;
+    allTheOrientations.push(zblock.horizontal);
+    allTheOrientations.push(zblock.vertical);
+    Shapes.shapeObjectList.push(zblock);
     
     
     var sblock = {
@@ -121,6 +129,9 @@ var rw = params.rowWidth;
     };
     sblock.horizontal.nonOrientedShape = sblock;
     sblock.vertical.nonOrientedShape = sblock;
+    allTheOrientations.push(sblock.horizontal);
+    allTheOrientations.push(sblock.vertical);
+    Shapes.shapeObjectList.push(sblock);
     
     
     var lgun = {
@@ -166,6 +177,11 @@ var rw = params.rowWidth;
     lgun.down.nonOrientedShape = lgun;
     lgun.left.nonOrientedShape = lgun;
     lgun.right.nonOrientedShape = lgun;
+    allTheOrientations.push(lgun.up);
+    allTheOrientations.push(lgun.down);
+    allTheOrientations.push(lgun.left);
+    allTheOrientations.push(lgun.right);
+    Shapes.shapeObjectList.push(lgun);
     
     
     var rgun = {
@@ -211,6 +227,11 @@ var rw = params.rowWidth;
     rgun.down.nonOrientedShape = rgun;
     rgun.left.nonOrientedShape = rgun;
     rgun.right.nonOrientedShape = rgun;
+    allTheOrientations.push(rgun.up);
+    allTheOrientations.push(rgun.down);
+    allTheOrientations.push(rgun.left);
+    allTheOrientations.push(rgun.right);
+    Shapes.shapeObjectList.push(rgun);
     
     
     var tblock = {
@@ -256,38 +277,15 @@ var rw = params.rowWidth;
     tblock.down.nonOrientedShape = tblock;
     tblock.left.nonOrientedShape = tblock;
     tblock.right.nonOrientedShape = tblock;
+    allTheOrientations.push(tblock.up);
+    allTheOrientations.push(tblock.down);
+    allTheOrientations.push(tblock.left);
+    allTheOrientations.push(tblock.right);
+    Shapes.shapeObjectList.push(tblock);
     
-    Shapes.shapeObjectList = [
-        square,
-        straight,
-        zblock,
-        sblock,
-        lgun,
-        rgun,
-        tblock
-    ];
-    
-    var allTheOrientations = [
-        square.only,
-        straight.horizontal,
-        straight.vertical,
-        zblock.horizontal,
-        zblock.vertical,
-        sblock.horizontal,
-        sblock.vertical,
-        lgun.down,
-        lgun.left,
-        lgun.right,
-        lgun.up,
-        rgun.down,
-        rgun.left,
-        rgun.right,
-        rgun.up,
-        tblock.down,
-        tblock.left,
-        tblock.right,
-        tblock.up
-    ];
+    // ----------------------------------------------------------------
+    // END SHAPE DEFINITIONS
+    // ----------------------------------------------------------------
     
     
     var shapeCheck = {
