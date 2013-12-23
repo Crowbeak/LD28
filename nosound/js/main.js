@@ -16,16 +16,8 @@
 /*global    $,
             Constants,
             enchant,
-                Class,
                 Core,
-                Event,
-                Label,
-                Node,
-                Scene,
-                Sprite,
-                Surface,
-            Scenes,
-            Shapes */
+            Scenes */
 
 
 // Initialize and start the game.
@@ -33,6 +25,8 @@ $(document).ready(function () {
     "use strict";
     var game = new Core(Constants.stageWidth, Constants.stageHeight);
     game.preload('img/crowbeak.png',
+                 'img/boardui1.png',
+                 'img/boardui2.png',
                  'img/centerui1.png',
                  'img/centerui2.png',
                  
@@ -54,9 +48,13 @@ $(document).ready(function () {
         console.info("Game loaded.");
         var images = {
             logo: game.assets['img/crowbeak.png'],
+            boardui: {
+                back: game.assets['img/boardui1.png'],
+                front: game.assets['img/boardui2.png']
+            },
             centerui: {
-                one: game.assets['img/centerui1.png'],
-                two: game.assets['img/centerui2.png']
+                back: game.assets['img/centerui1.png'],
+                front: game.assets['img/centerui2.png']
             },
             tiles: {
                 base: game.assets['img/tiles/basetile.png'],

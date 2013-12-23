@@ -28,6 +28,7 @@ var Constants = {
     fourTetrominoesNumber: 7,
     fps: 20,
     gamebgc: "lightgray",
+    interactiveBorderWidth: 10,
     numberOfChoices: 2,
     opacityMinimum: 0.15,
     opacityROC: 0.05,
