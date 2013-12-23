@@ -42,6 +42,7 @@
             this.scoreboard.addGraphicsToScene(this);
             this.targetDisplay.addGraphicsToScene(this);
             this.targetDisplay.generateNextTarget();
+            this.targetDisplay.update();
             
             this.clickpoint = new Game.ClickPoint();
             this.addEventListener(Event.TOUCH_START, function (e) {
