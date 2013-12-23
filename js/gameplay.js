@@ -21,6 +21,7 @@
 (function (Game) {
     "use strict";
     
+    // CLICK POINT ----------------------------------------------------
     Game.ClickPoint = Class.create(Sprite, {
         initialize: function () {
             Sprite.call(this, Constants.padding, Constants.padding);
@@ -34,6 +35,8 @@
         this.y = 0;
     };
     
+    
+    // TILE -----------------------------------------------------------
     /**
      * Takes block of all tile images.
      */
@@ -83,6 +86,7 @@
     };
     
     
+    // NEXT PIECE DISPLAY ---------------------------------------------
     Game.NextPiecesDisplay = Class.create(Group, {
         initialize: function (images, clickSound) {
             Group.call(this);
@@ -149,6 +153,7 @@
     };
     
     
+    // SCOREBOARD -----------------------------------------------------
     Game.Scoreboard = Class.create(Group, {
         initialize: function () {
             Group.call(this);
@@ -176,6 +181,7 @@
     };
     
     
+    // NEXT TARGET ----------------------------------------------------
     Game.NextTarget = Class.create(Sprite, {
         initialize: function (images, xCoord, yCoord) {
             Sprite.call(this, Constants.cdisplayWidth, Constants.cdisplayHeight);
@@ -191,6 +197,7 @@
     };
     
     
+    // TARGET DISPLAY -------------------------------------------------
     Game.TargetDisplay = Class.create(Group, {
         initialize: function (images, shapeList, targetOptions) {
             Group.call(this);
@@ -239,6 +246,7 @@
     };
     
     
+    // BOARD ----------------------------------------------------------
     Game.Board = Class.create(Group, {
         initialize: function (images, options, sounds) {
             var i, j, temp;
@@ -282,7 +290,6 @@
     Game.Board.prototype.placeTile = function (i, newType) {
         this.tiles[i].change(newType);
         this.sounds.shoonk.play();
-        this.tilePlaced = true;
         this.markUnselectable();
     };
     
@@ -290,28 +297,19 @@
     // of points to add and an array of tiles to be removed from
     // the board
     Game.Board.prototype.checkState = function (currentTarget) {
-        var tilesToRemove, pts, temp;
-        if (this.tilePlaced) {
-            tilesToRemove = this.checkForShapes(currentTarget);
-            pts = this.calculatePoints(tilesToRemove);
-            if (pts > 0) {
-                temp = true;
-            } else {
-                temp = false;
-            }
-            this.tilePlaced = false;
-            return {
-                points: pts,
-                tilesToRemove: tilesToRemove.indices,
-                shapeFound: temp
-            };
+        var tilesToRemove, pts, shapeFound;
+        tilesToRemove = this.checkForShapes(currentTarget);
+        pts = this.calculatePoints(tilesToRemove);
+        if (pts > 0) {
+            shapeFound = true;
         } else {
-            return {
-                points: 0,
-                tilesToRemove: [],
-                shapeFound: false
-            };
+            shapeFound = false;
         }
+        return {
+            points: pts,
+            tilesToRemove: tilesToRemove.indices,
+            shapeFound: shapeFound
+        };
     };
     
     //returns array of tile indices to be removed from the board

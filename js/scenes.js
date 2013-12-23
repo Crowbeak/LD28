@@ -50,19 +50,33 @@
                 this.clickpoint.y = e.y;
             });
             this.addChild(this.clickpoint);
+            
+            this.checkBoardState = function () {
+                var boardState = {
+                    points: 0,
+                    tilesToRemove: [],
+                    shapeFound: false
+                };
+                
+                boardState = this.board.checkState(this.targetDisplay.getCurrentTarget());
+                while (boardState.shapeFound) {
+                    this.board.removeTiles(boardState.tilesToRemove);
+                    this.scoreboard.update(boardState.points);
+                    this.targetDisplay.generateNextTarget();
+                    this.targetDisplay.update();
+                    boardState = this.board.checkState(this.targetDisplay.getCurrentTarget());
+                }
+            };
         },
         
         onenterframe: function () {
             var i;
-            var boardState = {
-                points: 0,
-                tilesToRemove: []
-            };
             
             if (this.nextPieces.tileActive) {
                 for (i = 0; i < this.board.tiles.length; i++) {
                     if ((this.clickpoint.intersect(this.board.tiles[i])) && (this.board.tiles[i].type === 0)) {
                         this.board.placeTile(i, this.nextPieces.newType);
+                        this.checkBoardState();
                         this.nextPieces.generateTiles();
                         this.nextPieces.markSelectable();
                         break;
@@ -77,16 +91,6 @@
                         break;
                     }
                 }
-            }
-            boardState = this.board.checkState(this.targetDisplay.getCurrentTarget());
-            while (boardState.shapeFound) {
-                this.board.removeTiles(boardState.tilesToRemove);
-                this.scoreboard.update(boardState.points);
-                this.targetDisplay.generateNextTarget();
-                boardState = this.board.checkState(this.targetDisplay.getCurrentTarget());
-            }
-            if (this.targetDisplay.targetUpdated) {
-                this.targetDisplay.update();
             }
         }
     });

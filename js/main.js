@@ -16,16 +16,8 @@
 /*global    $,
             Constants,
             enchant,
-                Class,
                 Core,
-                Event,
-                Label,
-                Node,
-                Scene,
-                Sprite,
-                Surface,
-            Scenes,
-            Shapes */
+            Scenes */
 
 
 // Initialize and start the game.
